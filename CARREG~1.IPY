@@ -1,0 +1,586 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Instruções gerais\n",
+    "\n",
+    "Para executar uma CÉLULA, pressione o botão \"Run\" no topo, com a CÉLULA selecionada, ou pressione:\n",
+    "    \n",
+    "    Shift + Enter\n",
+    "\n",
+    "EXECUTE APENAS UMA CÉLULA POR VEZ\n",
+    "\n",
+    "-Caso deseje apagar a saída de uma célula carregada, mas não deseje carregar uma nova saída, vá à aba superior, escolha o ícone\n",
+    "do teclado (open the command palette/ jupyter-notebook command group) e selecione clear cell output.\n",
+    "\n",
+    "@author: Marco César Prado Soares, MSc.\n",
+    "Especialista Lean Six Sigma Master Black Belt, Eng. Químico, MSc. Eng. Mecatrônica (instrumentação) \n",
+    "Marco.Soares@br.ey.com; marcosoares.feq@gmail.com"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "5ce80520-fdf0-49de-ae54-59118114736a"
+   },
+   "source": [
+    "# Carregar e modificar arquivos em formato .txt"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "e10c9259-af40-42b8-8166-5c7a54b3c4e8"
+   },
+   "source": [
+    "O trabalho com arquivos do tipo .txt, .xml, ou .json (JavaScript Object Notation) pode ser importante. Por exemplo, informações de log (relevantes em auditoria) são geralmente fornecidas nestes formatos, bem como boa parte dos dados semi-estruturados dos bancos de dados NoSQL. Os arquivos .xml e .json podem ser salvos como .txt e analisados desta forma. \n",
+    "\n",
+    "  \n",
+    "\n",
+    "Para análise do conteúdo de páginas .html, é mais recomendável a utilização do notebook Web Scraping, da Layer 2."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "7af19340-8c5b-4e25-83d8-8eb7ca8a91a4"
+   },
+   "source": [
+    "## **Exemplo 1.** Obter informações semi-estruturadas (.txt, .xml, etc) e convertê-lo em um dataframe"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Antes de começar, certifique-se de converter o arquivo para a extensão .txt.\n",
+    "\n",
+    "- Para isso, você pode abrir o arquivo com o bloco de notas (notepad) - ou copiar as informações para o bloco de notas - e, em Salvar como, definir a extensão .txt.\n",
+    "\n",
+    "- Sempre carregue os arquivos em modo leitura \"r\". Carregar em modo escrita \"w\" fará o arquivo original ser sobreposto por um arquivo em branco vazio (ou contendo as informações definidas no código).\n",
+    "\n",
+    "###### Este procedimento é dividido nas seguintes etapas:\n",
+    "\n",
+    "1. Carregar o arquivo que será lido. A forma mais simples é armazenar o arquivo na mesma pasta (path) em que este Notebook se encontra - caso estejam na mesma pasta, só é necessário fornecer o nome do arquivo.\n",
+    "2. Obter os textos presentes no arquivo e armazenar os textos (strings) em uma lista. Cada linha do arquivo será salva como um elemento distinto da lista.\n",
+    "3. Criar um dicionário a partir da lista.\n",
+    "4. Converter o dicionário em um dataframe no qual cada linha corresponde a uma linha do arquivo original.\n",
+    "5. Fazer a filtragem para converter as indicações de quebra de linha (\"\\n\") - além das outras indicações que se deseje eliminar - em Missing Values (None ou NaN).\n",
+    "6. Remover todas as linhas do dataframe contendo Missing Values.\n",
+    "7. Exibir as propriedades e o cabeçalho do novo dataframe.\n",
+    "8. Exportar o novo dataframe como um arquivo .csv. Caso não seja fornecido um endereço, mas apenas o nome deste arquivo seguido da extensão .csv, o novo dataframe será salvo na mesma pasta em que se encontra este Notebook."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<_io.TextIOWrapper name='bancocentral_test.txt' mode='r' encoding='cp1252'>"
+      ]
+     },
+     "execution_count": 1,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "\n",
+    "#forneça o path do arquivo. Caso o arquivo esteja na mesma pasta que o arquivo\n",
+    "# \"C:\\Users\\FT969GH\\OneDrive - EY\\Documents\\bancocentral.txt\"\n",
+    "#.py ou .ipnyb, basta fornecer o nome do arquivo\n",
+    "\n",
+    "file_path = \"bancocentral_test.txt\"\n",
+    "file = open(file_path, \"r\")\n",
+    "\n",
+    "file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['<!doctype html>\\n', '\\n', '<html lang=\"pt-br\">\\n', '\\n', '<head>\\n', '\\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" />\\n', '\\t<meta charset=\"utf-8\">\\n', '\\t<base href=\"https://www.bcb.gov.br/\">\\n', '\\n', '\\t<title>Banco Central do Brasil</title>\\n', '\\n', '\\t<meta name=\"description\" content=\"Banco Central do Brasil\">\\n', '\\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\\n', '\\t<meta name=\"robots\" content=\"index, follow\" />\\n', '\\t<meta name=\"AdsBot-Google\" content=\"noindex\" />\\n', '\\t<meta name=\"theme-color\" content=\"#025c75\" />\\n', '\\t<meta name=\"google-site-verification\" content=\"HrSauVp28E-CmIunToYrF1-gaMfDbWESxMFUDXFMqPA\" />\\n', '\\n', '\\t<link rel=\"alternate\" hreflang=\"pt\" href=\"/\">\\n', '\\t<link rel=\"alternate\" hreflang=\"en\" href=\"/en/\">\\n', '\\n', '\\t<link rel=\"icon\" type=\"image/x-icon\" href=\"/favicon.ico\">\\n', '\\n', '\\t<!-- diz ao servidor que futuras conexoes ira usar -->\\n', '\\t<link rel=\"preconnect\" href=\"https://fonts.gstatic.com/\" crossorigin>\\n', '\\t<link rel=\"preconnect\" href=\"https://www.google-analytics.com\" crossorigin>\\n', '\\n', '\\t<!-- css -->\\n', '\\t<link rel=\"preload\" href=\"/assets/fonts/iconic/iconic-lg.woff\" as=\"font\" type=\"font/woff\" crossorigin>\\n', '\\t<link rel=\"preload\" href=\"/assets/fonts/iconic/iconic-md.woff\" as=\"font\" type=\"font/woff\" crossorigin>\\n', '\\t<link rel=\"preload\" href=\"/assets/fonts/iconic/iconic-sm.woff\" as=\"font\" type=\"font/woff\" crossorigin>\\n', '\\t<link rel=\"preload\" href=\"/assets/fonts/iconic/iconic-sm.ttf\" as=\"font\" type=\"font/ttf\" crossorigin>\\n', '\\t<link rel=\"preload\" href=\"/assets/fonts/iconic/iconic-md.ttf\" as=\"font\" type=\"font/ttf\" crossorigin>\\n', '\\t<link rel=\"preload\" href=\"/assets/fonts/iconic/iconic-lg.ttf\" as=\"font\" type=\"font/ttf\" crossorigin>\\n', '\\n', '\\t<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Cormorant+Garamond:300,300i,400,400i,500,500i,600,600i,700,700i&display=swap\" lazyload>\\n', '\\t<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Ubuntu:300,300i,400,400i,500,500i,700,700i&display=swap\" lazyload>\\n', '\\t<!-- production -->\\n', '<link rel=\"stylesheet\" href=\"https://www.bcb.gov.br/styles.04e3c8b5fafdaa90eb1d.css\"></head>\\n', '\\n', '<body>\\n', '\\t<noscript>Essa pagina depende do javascript para abrir, favor habilitar o javascript do seu browser!</noscript>\\n', '\\t<app-root></app-root>\\n', '\\t<script src=\"https://www.googletagmanager.com/gtag/js?id=UA-65460906-3\" async></script>\\n', '\\t<!-- <script src=\"/assets/js/webchat.js\" defer></script> -->\\n', '<script src=\"https://www.bcb.gov.br/runtime-es2015.f4182735e9f0f77bf3f7.js\" type=\"module\"></script><script src=\"https://www.bcb.gov.br/runtime-es5.f4182735e9f0f77bf3f7.js\" nomodule defer></script><script src=\"https://www.bcb.gov.br/polyfills-es5.a37b02ccbb0f75270acd.js\" nomodule defer></script><script src=\"https://www.bcb.gov.br/polyfills-es2015.ad20594425c38ab182d0.js\" type=\"module\"></script><script src=\"https://www.bcb.gov.br/scripts.b4765efc9173f5e0ffa0.js\" defer></script><script src=\"https://www.bcb.gov.br/vendor-es2015.84c13f89c86e923d1062.js\" type=\"module\"></script><script src=\"https://www.bcb.gov.br/vendor-es5.84c13f89c86e923d1062.js\" nomodule defer></script><script src=\"https://www.bcb.gov.br/main-es2015.4934d2e1e2be96f22a2e.js\" type=\"module\"></script><script src=\"https://www.bcb.gov.br/main-es5.4934d2e1e2be96f22a2e.js\" nomodule defer></script></body>\\n', '\\n', '</html><script id=\"f5_cspm\">(function(){var f5_cspm={f5_p:\\'PKFPGNPOBAMNLLJECJJBLPKLMAFLLEBANKCKAONICHGLNBBINFLPHOLDMOJNLFPOPGHBEFAIEBKINKMDMIPAIKHEAFOBKHBIMJKMHAPPNFLLGMPJMOMNEDOPBJMNOLPA\\',setCharAt:function(str,index,chr){if(index>str.length-1)return str;return str.substr(0,index)+chr+str.substr(index+1);},get_byte:function(str,i){var s=(i/16)|0;i=(i&15);s=s*32;return((str.charCodeAt(i+16+s)-65)<<4)|(str.charCodeAt(i+s)-65);},set_byte:function(str,i,b){var s=(i/16)|0;i=(i&15);s=s*32;str=f5_cspm.setCharAt(str,(i+16+s),String.fromCharCode((b>>4)+65));str=f5_cspm.setCharAt(str,(i+s),String.fromCharCode((b&15)+65));return str;},set_latency:function(str,latency){latency=latency&0xffff;str=f5_cspm.set_byte(str,40,(latency>>8));str=f5_cspm.set_byte(str,41,(latency&0xff));str=f5_cspm.set_byte(str,35,2);return str;},wait_perf_data:function(){try{var wp=window.performance.timing;if(wp.loadEventEnd>0){var res=wp.loadEventEnd-wp.navigationStart;if(res<60001){var cookie_val=f5_cspm.set_latency(f5_cspm.f5_p,res);window.document.cookie=\\'f5avr0427712900aaaaaaaaaaaaaaaa_cspm_=\\'+encodeURIComponent(cookie_val)+\\';path=/\\';}\\n', 'return;}}\\n', 'catch(err){return;}\\n', \"setTimeout(f5_cspm.wait_perf_data,100);return;},go:function(){var chunk=window.document.cookie.split(/\\\\s*;\\\\s*/);for(var i=0;i<chunk.length;++i){var pair=chunk[i].split(/\\\\s*=\\\\s*/);if(pair[0]=='f5_cspm'&&pair[1]=='1234')\\n\", \"{var d=new Date();d.setTime(d.getTime()-1000);window.document.cookie='f5_cspm=;expires='+d.toUTCString()+';path=/;';setTimeout(f5_cspm.wait_perf_data,100);}}}}\\n\", 'f5_cspm.go();}());</script>']\n"
+     ]
+    }
+   ],
+   "source": [
+    "#Obter os textos presentes no arquivo e salvá-los em uma lista\n",
+    "\n",
+    "with open(\"bancocentral_test.txt\",\"r\") as file:\n",
+    "    text = [(x) for x in file.readlines()]\n",
+    "    print(text)\n",
+    "    #Cada elemento dessa lista será uma linha do arquivo"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Criar dicionário das linhas\n",
+    "\n",
+    "d = {'File line': text}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>File line</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>&lt;!doctype html&gt;\\n</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>\\n</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>&lt;html lang=\"pt-br\"&gt;\\n</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>\\n</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>&lt;head&gt;\\n</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "               File line\n",
+       "0      <!doctype html>\\n\n",
+       "1                     \\n\n",
+       "2  <html lang=\"pt-br\">\\n\n",
+       "3                     \\n\n",
+       "4               <head>\\n"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#Converter o dicionário em um dataframe tal que cada linha deste dataframe corresponda a uma linha\n",
+    "#do arquivo original\n",
+    "\n",
+    "text_dataframe = pd.DataFrame(data = d)\n",
+    "\n",
+    "text_dataframe.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>File line</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>&lt;!doctype html&gt;\\n</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>None</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>&lt;html lang=\"pt-br\"&gt;\\n</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>None</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>&lt;head&gt;\\n</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "               File line\n",
+       "0      <!doctype html>\\n\n",
+       "1                   None\n",
+       "2  <html lang=\"pt-br\">\\n\n",
+       "3                   None\n",
+       "4               <head>\\n"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#Filtrar e converter as indicações de quebras de linha (ou outras indicações de interesse) em Missing Values\n",
+    "    \n",
+    "text_dataframe[text_dataframe['File line'] == \"\\n\"] = None\n",
+    "text_dataframe.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<class 'pandas.core.frame.DataFrame'>\n",
+      "Int64Index: 42 entries, 0 to 52\n",
+      "Data columns (total 1 columns):\n",
+      " #   Column     Non-Null Count  Dtype \n",
+      "---  ------     --------------  ----- \n",
+      " 0   File line  42 non-null     object\n",
+      "dtypes: object(1)\n",
+      "memory usage: 672.0+ bytes\n"
+     ]
+    }
+   ],
+   "source": [
+    "#Eliminar linhas contendo Missing Values e exibir as informações do novo dataframe\n",
+    "\n",
+    "text_dataframe = text_dataframe.dropna(axis=0)\n",
+    "\n",
+    "text_dataframe.info()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>File line</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>&lt;!doctype html&gt;\\n</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>&lt;html lang=\"pt-br\"&gt;\\n</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>&lt;head&gt;\\n</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>\\t&lt;meta http-equiv=\"X-UA-Compatible\" content=\"...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>\\t&lt;meta charset=\"utf-8\"&gt;\\n</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                                           File line\n",
+       "0                                  <!doctype html>\\n\n",
+       "2                              <html lang=\"pt-br\">\\n\n",
+       "4                                           <head>\\n\n",
+       "5  \\t<meta http-equiv=\"X-UA-Compatible\" content=\"...\n",
+       "6                         \\t<meta charset=\"utf-8\">\\n"
+      ]
+     },
+     "execution_count": 11,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#Exibir cabeçalho do novo dataframe\n",
+    "\n",
+    "text_dataframe.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Exportar arquivo csv gerado\n",
+    "\n",
+    "text_dataframe.to_csv(r\"text_dataframe.csv\", index = False)\n",
+    "\n",
+    "#o arquivo será gerado na mesma pasta em que está este Notebook\n",
+    "#Caso deseje outra pasta, indique, no trecho entre aspas, o endereço (path do novo arquivo).\n",
+    "#Substitua text_dataframe.csv pelo nome desejado para o novo arquivo, mas mantenha a extensão .csv"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## **Exemplo 2.** Sobreposição de arquivo, Edição, Append, Leitura"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Aqui, o arquivo será aberto no modo escrita (\"w\"). Com isso, ele será automaticamente sobreposto por um novo arquivo, em branco.\n",
+    "\n",
+    "###### A utilização do modo escrita é apropriada às situações nas quais se deseja escrever um novo arquivo .txt a partir dos dados disponíveis; ou quando se deseja apagar todas as informações presentes e substituí-las por informações novas.\n",
+    "\n",
+    "#### Por isso, utilize, por padrão, o modo leitura (\"r\"). Isto evitará que as informações do arquivo lido sejam perdidas."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "azdata_cell_guid": "52012ebf-af62-46f3-b621-57717e4d8155"
+   },
+   "outputs": [],
+   "source": [
+    "f = open(\"MyFile.txt\",\"w\")\n",
+    "#abre o arquivo no endereço \"MyFile.txt\" no modo de edição (\"w\", \"write\")\n",
+    "#o arquivo é armazenado no objeto f\n",
+    "#Note que, uma vez que foi aberto no modo escrita, o arquivo está automaticamente sobreposto por um novo arquivo, em branco.\n",
+    "#Este modo é mais apropriado quando se deseja escrever um arquivo .txt a partir dos dados disponíveis.\n",
+    "\n",
+    "f.write(\"Hello\")\n",
+    "f.write(\" \")\n",
+    "#f.write(\"1\") #str(1) -> \"1\"\n",
+    "f.close()\n",
+    "\n",
+    "f = open(\"MyFile.txt\",\"a\")\n",
+    "#abre o arquivo no modo Append (\"a\")\n",
+    "f.write(\"World\")\n",
+    "f.write(\" Again\")\n",
+    "f.write(\"\\n\")\n",
+    "f.close()\n",
+    "\n",
+    "f = open(\"MyFile.txt\",\"r\")\n",
+    "#abre no modo leitura (\"r\", \"read\")\n",
+    "line = f.readline()\n",
+    "print(line)\n",
+    "\n",
+    "print(line.strip(\"\\n\"))\n",
+    "print(line.strip(\"\\n\").split(\" \"))\n",
+    "print(line)\n",
+    "print(int(\"1\")) #int(\"1\") -> 1\n",
+    "f.close()\n",
+    "\n",
+    "with open(\"MyFile.txt\",\"r\") as f:\n",
+    "    line2 = f.readline()\n",
+    "    print(line2)\n",
+    "    \n",
+    "print(f.readline())"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "03ce5c44-240c-4a6f-a0d0-227eb02fa4a4"
+   },
+   "source": [
+    "## **Exemplo 3.** Carregar arquivo, Extrair dados e salvar em variáveis, Criar lista de valores associados, Obter gráfico dos dados extraídos"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "74f143e0-3f92-4af3-b656-865f3fd47fc6"
+   },
+   "source": [
+    "2.1. Extrair dados e armazená-los em variável"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "azdata_cell_guid": "1c6896e2-590b-4e98-a3a3-d608fb0139e1",
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "with open(\"Goals.txt\",\"r\") as f:\n",
+    "    HomeTeamGoals = [ int(x) for x in f.readline().strip(\"\\n\").strip(\" \").split(\" \")]\n",
+    "    AwayTeamGoals = [int(x) for x in f.readline().strip(\"\\n\").strip(\" \").split(\" \")]\n",
+    "#note que os comandos:\n",
+    "    #1. Convertem a string x do arquivo .txt em valor numérico inteiro: int(x)\n",
+    "    #2. Separam as diferentes leituras por meio do \"strip\" e do \"split\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "445734ed-1160-4c66-b661-19335d6db9d1"
+   },
+   "source": [
+    "2.2. Criar lista de valores associados"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "azdata_cell_guid": "bfaf612d-b7ef-4731-80ef-645d1e3dc877"
+   },
+   "outputs": [],
+   "source": [
+    "xVariable = []\n",
+    "for i in range(len(HomeTeamGoals)):\n",
+    "    xVariable.append(i)\n",
+    "    # esta lista apresentará um valor associado a cada um dos valores extraídos do arquivo .txt"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "570770c8-0df8-443d-a8ec-57e76514fd23"
+   },
+   "source": [
+    "2.2. Obter gráfico dos dados extraídos"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "azdata_cell_guid": "9a3005cc-2c9f-4a3e-8a8e-7bf59a49e22c"
+   },
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "plt.scatter(xVariable, AwayTeamGoals, c = \"green\", s = 12)\n",
+    "plt.show()\n",
+    "plt.scatter(xVariable, HomeTeamGoals, c = \"red\", s = 12)\n",
+    "plt.xlim(0,145)\n",
+    "plt.ylim(-0.5,6)\n",
+    "plt.show()"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.5"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

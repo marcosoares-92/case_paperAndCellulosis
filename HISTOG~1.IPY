@@ -1,0 +1,978 @@
+{
+    "metadata": {
+        "kernelspec": {
+            "name": "python3",
+            "display_name": "Python 3 (ipykernel)",
+            "language": "python"
+        },
+        "language_info": {
+            "name": "python",
+            "version": "3.8.10",
+            "mimetype": "text/x-python",
+            "codemirror_mode": {
+                "name": "ipython",
+                "version": 3
+            },
+            "pygments_lexer": "ipython3",
+            "nbconvert_exporter": "python",
+            "file_extension": ".py"
+        },
+        "celltoolbar": "Tags"
+    },
+    "nbformat_minor": 2,
+    "nbformat": 4,
+    "cells": [
+        {
+            "cell_type": "code",
+            "source": [
+                "## Análise de distribuição estatística dos dados - Histograma, normalidade e transformação Box-Cox\n",
+                "\n",
+                "## CÉLULA 1: Instruções de carregamento do arquivo e bibliotecas a ser importadas\n",
+                "\n",
+                "\"\"\"\"\n",
+                "    Para executar uma CÉLULA, pressione o botão \"Run\" no topo, com a CÉLULA selecionada, ou pressione:\n",
+                "    \n",
+                "    Shift + Enter\n",
+                "\n",
+                "-Se seus dados estiverem em um arquivo xlsx utilize a CÉLULA 2\n",
+                "\n",
+                "-Se seus dados estiverem em um arquivo csv contendo cabeçalhos, utilize a CÉLULA 3\n",
+                "\n",
+                "-Se seus dados estiverem em um arquivo csv sem cabeçalhos, utilize a CÉLULA 4\n",
+                "\n",
+                "-Utilize apenas a CÉLULA correta\n",
+                "-Substitua o texto entre aspas na variável \"caminho\" pelo endereço do arquivo em sua máquina.\n",
+                "\n",
+                "EXECUTE ESTA CÉLULA ANTES DE PROSSEGUIR\n",
+                "\n",
+                "EXECUTE APENAS UMA CÉLULA POR VEZ\n",
+                "\n",
+                "-Caso deseje apagar a saída de uma célula carregada, mas não deseje carregar uma nova saída, vá à aba superior, escolha o ícone\n",
+                "do teclado (open the command palette/ jupyter-notebook command group) e selecione clear cell output.\n",
+                "\n",
+                "@author: Marco César Prado Soares, MSc.\n",
+                "Especialista Lean Six Sigma Master Black Belt, Eng. Químico, MSc. Eng. Mecatrônica (instrumentação) \n",
+                "Marco.Soares@br.ey.com; marcosoares.feq@gmail.com\n",
+                "\"\"\"\n",
+                "import pandas as pd\n",
+                "import numpy as np\n",
+                "import matplotlib.pyplot as plt"
+            ],
+            "metadata": {
+                "tags": [
+                    "CELL_1"
+                ],
+                "azdata_cell_guid": "ec386f22-8bf7-4a05-ad06-a2c69ec510ef"
+            },
+            "outputs": [],
+            "execution_count": 2
+        },
+        {
+            "cell_type": "code",
+            "source": [
+                "## CÉLULA 3: dados em arquivo csv com cabeçalho\n",
+                "\n",
+                "caminho = \"df_train.csv\"\n",
+                "df_train = pd.read_csv(caminho)\n",
+                "\n",
+                "caminho = \"df_test.csv\"\n",
+                "df_test = pd.read_csv(caminho)"
+            ],
+            "metadata": {
+                "tags": [
+                    "CELL_3"
+                ],
+                "azdata_cell_guid": "7bf90175-1d46-4f2d-b417-50028733d769"
+            },
+            "outputs": [],
+            "execution_count": 6
+        },
+        {
+            "cell_type": "markdown",
+            "source": [
+                "# CÉLULA 6: Instruções Gerais\n",
+                "\n",
+                "### ATENÇÃO: NÃO EXECUTE ESTA CÉLULA - Ela contém apenas texto explicativo\n",
+                "\n",
+                "Este notebook destina-se à análise de distribuição estatística dos dados, e transformação deles em dados que sigam a distribuição normal. À seguir, são dadas as análises disponíveis. Siga à célula correspondente à análise desejada:\n",
+                "\n",
+                "## 1) Histograma com ou sem curva normal ajustada\n",
+                "\n",
+                "- Aqui será construído o histograma dos dados.\n",
+                "- Este sistema permite a verificação simultânea da curva normal ajustada.\n",
+                "- O resultado pode ser prejudicado para dados com diferenças extremamente pequenas. Neste caso, pode ser mais interessante utilizar o comando de histograma do R (exemplo: hist(y,main=\"Histograma do valor de inventario\", xlab = \"Valor\", ylab = \"Contagem\", col=\"red\"), o qual já é otimizado para esta situação particular.\n",
+                "- Também são retornados: \n",
+                "    1) um resumo das estatísticas gerais dos dados: total de dados avaliados; média; desvio-padrão; valor mais elevado; valor \n",
+                "        mais baixo; e bin size, a largura da barra do histograma.\n",
+                "    2) a tabela de frequencias usada na construção do histograma\n",
+                "\n",
+                "Siga para as CÉLULAS 7 a 9.\n",
+                "----------------------------------------\n",
+                "\n",
+                "_______________________________________________________________________________________________________________________________\n",
+                "_______________________________________________________________________________________________________________________________\n",
+                "_______________________________________________________________________________________________________________________________\n",
+                "\n",
+                "## 2) Testes de normalidade\n",
+                "\n",
+                "- Aqui será avaliado se os dados podem ser descritos por uma distribuição estatística do tipo normal, por meio de dois testes distintos: teste de Lilliefors e teste de Anderson-Darling.\n",
+                "- Note que existem outros testes (em especial testes Anderson-Darling) destinados à avaliação de outras distribuições. O pacote nortest do R fornece uma gama de testes deste tipo, em variedade maior que o disponibilizado no pacote statsmodels do Python.\n",
+                "- Este sistema retornará dois dataframes contendo p-valores, a probabilidade de uma hipótese-nula ser verdadeira. Neste caso, a hipótese-nula dos testes de hipótese (Lilliefors e Anderson-Darling) é que os dados seguem a normal.\n",
+                "\n",
+                "Siga para as CÉLULAS 10 a 12.\n",
+                "----------------------------------------\n",
+                "\n",
+                "_______________________________________________________________________________________________________________________________\n",
+                "_______________________________________________________________________________________________________________________________\n",
+                "_______________________________________________________________________________________________________________________________\n",
+                "\n",
+                "## 3) Transformação Box-Cox\n",
+                "\n",
+                "- Este sistema transforma o conjunto de dados original em dados descritos pela curva normal.\n",
+                "- Também os limites de especificação transformados.\n",
+                "- Possibilita, assim, que seja analisado se os dados estão dentro das especificações.\n",
+                "\n",
+                "Siga para as CÉLULAS 13 a 15.\n",
+                "----------------------------------------"
+            ],
+            "metadata": {
+                "tags": [
+                    "CELL_6"
+                ],
+                "azdata_cell_guid": "30366d74-7cb1-43b2-af54-a30036f3e8bd"
+            }
+        },
+        {
+            "cell_type": "code",
+            "source": [
+                "## CÉLULA 7: Função de construção do histograma dos dados\n",
+                "\n",
+                "#Execute esta CÉLULA para carregar a função\n",
+                "\n",
+                "def histogram(y, largura_da_barra, normal_curve_overlay = True, legenda_dos_dados = None, titulo_y = None, titulo_histograma = None):\n",
+                "    \n",
+                "    import pandas as pd\n",
+                "    import matplotlib\n",
+                "    import numpy as np\n",
+                "    import matplotlib.pyplot as plt\n",
+                "    \n",
+                "    #Calculo do bin size - largura do histograma:\n",
+                "    #1: Encontrar o menor (lowest) e o maior (highest) valor dentro da tabela de dados)\n",
+                "    #2: Calcular rangehist = highest - lowest\n",
+                "    #3: Calcular quantidade de dados (samplesize) de entrada fornecidos\n",
+                "    #4: Calcular a quantidade de celulas da tabela de frequencias (ncells)\n",
+                "    #ncells = numero inteiro mais proximo da (raiz quadrada de samplesize)\n",
+                "    #5: Calcular binsize = rangehist/(ncells)\n",
+                "    #ATENCAO: Nao se esquecer de converter range, ncells, samplesize e binsize para valores absolutos (modulos)\n",
+                "    #isso porque a largura do histograma tem que ser um numero positivo\n",
+                "\n",
+                "    y = y.reset_index(drop=True)\n",
+                "    #faz com que os indices desta serie sejam consecutivos e a partir de zero\n",
+                "\n",
+                "    #Estatisticas gerais: media (mu) e desvio-padrao (sigma)\n",
+                "    mu = y.mean() \n",
+                "    sigma = y.std() \n",
+                "\n",
+                "    #Calculo do bin-size\n",
+                "    highest = y.max()\n",
+                "    lowest = y.min()\n",
+                "    rangehist = highest - lowest\n",
+                "    rangehist = abs(rangehist)\n",
+                "    #garante que sera um numero positivo\n",
+                "    samplesize = y.count() #contagem do total de entradas\n",
+                "    ncells = (samplesize)**0.5 #potenciacao: ** - raiz quadrada de samplesize\n",
+                "    #resultado da raiz quadrada e sempre positivo\n",
+                "    ncells = round(ncells) #numero \"redondo\" mais proximo\n",
+                "    ncells = int(ncells) #parte inteira do numero arredondado\n",
+                "    #ncells = numero de linhas da tabela de frequencias\n",
+                "    binsize = rangehist/ncells\n",
+                "    binsize = round(binsize)\n",
+                "    binsize = int(binsize) #precisa ser inteiro\n",
+                "    \n",
+                "    #Construcao da tabela de frequencias\n",
+                "\n",
+                "    j = 0 #indice da tabela de frequencias\n",
+                "    #Este indice e diferente do ordenamento dos valores em ordem crescente\n",
+                "    xhist = []\n",
+                "    #Lista vazia que contera os x do histograma\n",
+                "    yhist = []\n",
+                "    #Listas vazia que conteras o y do histograma\n",
+                "    hist_labels = []\n",
+                "    #Esta lista gravara os limites da barra na forma de strings\n",
+                "\n",
+                "    pontomediodabarra = lowest + binsize/2 \n",
+                "    limitedabarra = lowest + binsize\n",
+                "    #ponto medio da barra \n",
+                "    #limite da primeira barra do histograma\n",
+                "    seriedohist1 = y\n",
+                "    seriedohist1 = seriedohist1.sort_values(ascending=True)\n",
+                "    #serie com os valores em ordem crescente\n",
+                "    seriedohist1 = seriedohist1.reset_index(drop=True)\n",
+                "    #garante que a nova serie tenha indices consecutivos, iniciando em zero\n",
+                "    i = 0 #linha inicial da serie do histograma em ordem crescente\n",
+                "    valcomparado = seriedohist1[i]\n",
+                "    #primeiro valor da serie, o mais baixo\n",
+                "\n",
+                "    while (j <= (ncells-1)):\n",
+                "        \n",
+                "        #para quando termina o numero de linhas da tabela\n",
+                "        xhist.append(pontomediodabarra)\n",
+                "        #tempo da tabela de frequencias\n",
+                "        cont = 0\n",
+                "        #variavel de contagem do histograma\n",
+                "        #contagem deve ser reiniciada\n",
+                "       \n",
+                "        if (i < samplesize):\n",
+                "            #2 condicionais para impedir que um termo de indice inexistente\n",
+                "            #seja acessado\n",
+                "            while (valcomparado <= limitedabarra) and (valcomparado < highest):\n",
+                "                #o segundo criterio garante a parada em casos em que os dados sao\n",
+                "                #muito proximos\n",
+                "                    cont = cont + 1 #adiciona contagem a tabela de frequencias\n",
+                "                    i = i + 1\n",
+                "                    \n",
+                "                    if (i < samplesize): \n",
+                "                        valcomparado = seriedohist1[i]\n",
+                "        \n",
+                "        yhist.append(cont) #valor de ocorrencias contadas\n",
+                "        \n",
+                "        limite_infdabarra = pontomediodabarra - binsize/2\n",
+                "        rotulo = \"%.2f - %.2f\" %(limite_infdabarra, limitedabarra)\n",
+                "        #intervalo da tabela de frequencias\n",
+                "        #%.2f: 2 casas decimais de aproximação\n",
+                "        hist_labels.append(rotulo)\n",
+                "        \n",
+                "        pontomediodabarra = pontomediodabarra + binsize\n",
+                "        #tanto os pontos medios quanto os limites se deslocam do mesmo intervalo\n",
+                "        \n",
+                "        limitedabarra = limitedabarra + binsize\n",
+                "        #proxima barra\n",
+                "        \n",
+                "        j = j + 1\n",
+                "    \n",
+                "    #Temos que verificar se o valor maximo foi incluido\n",
+                "    #isso porque o processo de aproximacao por numero inteiro pode ter\n",
+                "    #arredondado para baixo e excluido o limite superior\n",
+                "    #Porem, note que na ultima iteracao o limite superior da barra foi \n",
+                "    #somado de binsize, mas como j ja e maior que ncells-1, o loop parou\n",
+                "    \n",
+                "    #assim, o limitedabarra nesse momento e o limite da barra que seria\n",
+                "    #construida em seguida, nao da ultima barra da tabela de frequencias\n",
+                "    #isso pode fazer com que esta barra ja seja maior que o highest\n",
+                "    \n",
+                "    #note porem que nao aumentamos o valor do limite inferior da barra\n",
+                "    #por isso, basta vermos se ele mais o binsize sao menores que o valor mais alto\n",
+                "    \n",
+                "    \n",
+                "    while ((limite_infdabarra+binsize) < highest):\n",
+                "        \n",
+                "        #vamos criar novas linhas ate que o ponto mais alto do histograma\n",
+                "        #tenha sido contado\n",
+                "        ncells = ncells + 1 #adiciona uma linha a tabela de frequencias\n",
+                "        xhist.append(pontomediodabarra)\n",
+                "        \n",
+                "        cont = 0 #variavel de contagem do histograma\n",
+                "        \n",
+                "        while (valcomparado <= limitedabarra):\n",
+                "                cont = cont + 1 #adiciona contagem a tabela de frequencias\n",
+                "                i = i + 1\n",
+                "                if (i < samplesize):\n",
+                "                    valcomparado = seriedohist1[i]\n",
+                "                    #apenas se i ainda nao e maior que o total de dados\n",
+                "                \n",
+                "                else: \n",
+                "                    \n",
+                "                    break\n",
+                "        \n",
+                "        #parar o loop se i atingiu um tamanho maior que a quantidade \n",
+                "        #de dados.Temos que ter este cuidado porque estamos acrescentando\n",
+                "        #mais linhas a tabela de frequencias para corrigir a aproximacao\n",
+                "        #de ncells por um numero inteiro\n",
+                "        \n",
+                "        yhist.append(cont) #valor de ocorrencias contadas\n",
+                "        \n",
+                "        limite_infdabarra = pontomediodabarra - binsize/2\n",
+                "        rotulo = \"%.2f - %.2f\" %(limite_infdabarra, limitedabarra)\n",
+                "        #intervalo da tabela de frequencias - 2 casas decimais\n",
+                "        hist_labels.append(rotulo)\n",
+                "        \n",
+                "        pontomediodabarra = pontomediodabarra + binsize\n",
+                "        #tanto os pontos medios quanto os limites se deslocam do mesmo intervalo\n",
+                "        \n",
+                "        limitedabarra = limitedabarra + binsize\n",
+                "        #proxima barra\n",
+                "        \n",
+                "    estatisticas_col1 = []\n",
+                "    #contera as descricoes das colunas da tabela de estatisticas gerais\n",
+                "    estatisticas_col2 = []\n",
+                "    #contera os valores da tabela de estatisticas gerais\n",
+                "    \n",
+                "    estatisticas_col1.append(\"Total de dados avaliados\")\n",
+                "    estatisticas_col2.append(samplesize)\n",
+                "    estatisticas_col1.append(\"Média (mu)\")\n",
+                "    estatisticas_col2.append(mu)\n",
+                "    estatisticas_col1.append(\"Desvio-padrão (sigma)\")\n",
+                "    estatisticas_col2.append(sigma)\n",
+                "    estatisticas_col1.append(\"Valor mais elevado\")\n",
+                "    estatisticas_col2.append(highest)\n",
+                "    estatisticas_col1.append(\"Valor mais baixo\")\n",
+                "    estatisticas_col2.append(lowest)\n",
+                "    estatisticas_col1.append(\"Range dos dados\\n(valor máximo - valor mínimo)\")\n",
+                "    estatisticas_col2.append(rangehist)\n",
+                "    estatisticas_col1.append(\"Bin size\\n(largura da barra do histograma)\")\n",
+                "    estatisticas_col2.append(binsize)\n",
+                "    estatisticas_col1.append(\"Quantidade de linhas\\nna tabela de frequências\")\n",
+                "    estatisticas_col2.append(ncells)\n",
+                "    #como o comando append grava linha a linha em sequencia, garantimos\n",
+                "    #a correspondencia das colunas\n",
+                "    #Assim como em qualquer string, incluindo de rotulos de graficos\n",
+                "    #os \\n sao lidos como quebra de linha\n",
+                "    \n",
+                "    d1 = {\"Estatísticas gerais dos dados\": estatisticas_col1, \"Valor calculado\": estatisticas_col2}\n",
+                "    #dicionario das duas series, para criar o dataframe com as descricoes\n",
+                "    estatisticas_gerais = pd.DataFrame(data = d1)\n",
+                "    \n",
+                "    #Casos os títulos estejam presentes (valor nao e None):\n",
+                "    #vamos utiliza-los\n",
+                "    #Caso contrario, vamos criar nomenclaturas genericas para o histograma\n",
+                "    \n",
+                "    eixo_y = \"Counting/Frequency\"\n",
+                "    \n",
+                "    if not (legenda_dos_dados is None):\n",
+                "        xlabel = legenda_dos_dados\n",
+                "    \n",
+                "    else:\n",
+                "        xlabel = \"Frequency\\n table data\"\n",
+                "    \n",
+                "    if not (titulo_y is None):\n",
+                "        eixo_x = titulo_y\n",
+                "        #lembre-se que no histograma, os dados originais vao pro eixo X\n",
+                "        #O eixo Y vira o eixo da contagem/frequencia daqueles dados\n",
+                "    \n",
+                "    else:\n",
+                "        eixo_x = \"X: Mean value of the interval\"\n",
+                "    \n",
+                "    if not (titulo_histograma is None):\n",
+                "        string1 = \"- $\\mu = %.2f$, $\\sigma = %.2f$\" %(mu, sigma)\n",
+                "        main_label = titulo_histograma + string1\n",
+                "        #concatena a string do titulo a string com a media e desvio-padrao\n",
+                "        #%.2f: o numero entre %. e f indica a quantidade de casas decimais da \n",
+                "        #variavel float f. No caso, arredondamos para 2 casas\n",
+                "        #NAO SE ESQUECA DO PONTO: ele que indicara que sera arredondado o \n",
+                "        #numero de casas\n",
+                "    \n",
+                "    else:\n",
+                "        main_label = \"Data Histogram - $\\mu = %.2f$, $\\sigma = %.2f$\" %(mu, sigma)\n",
+                "        #os simbolos $\\ $ substituem o simbolo pela letra grega\n",
+                "    \n",
+                "    d2 = {\"Intervalos considerados\": hist_labels, eixo_x: xhist, eixo_y: yhist}\n",
+                "    #dicionario que compoe a tabela de frequencias\n",
+                "    tab_frequencias = pd.DataFrame(data = d2)\n",
+                "    #cria a tabela de frequencias como um dataframe de saida\n",
+                "    \n",
+                "    \"\"\"\n",
+                "    Normal curve equation\n",
+                "    \n",
+                "    y = p(X) = (1/((sigma)*sqrt(2*pi)))*exp((-1)*(X-mu)²/2(sigma²))\n",
+                "    0 <= p(X) <= 1\n",
+                "    mu = mean value of X\n",
+                "    sigma = standard deviation of X\n",
+                "    sqrt = square root function\n",
+                "    pi = 3.14159...\n",
+                "    e = 2.71828...\n",
+                "    exp = e** = e^ = exponential function\n",
+                "    \n",
+                "    numpy functions available:\n",
+                "        np.sqrt(X): square root of X\n",
+                "        np.pi = value of pi\n",
+                "        np.exp(X) = exponential function of X = e**X = e^X = exp(X)\n",
+                "    \n",
+                "    \"\"\"\n",
+                "    #parametros da normal ja calculados:\n",
+                "    #mu e sigma\n",
+                "    #numero de bins: ncells\n",
+                "    #limites de especificacao: lsl,usl - target\n",
+                "    \n",
+                "    #valor maximo do histograma\n",
+                "    max_hist = max(yhist)\n",
+                "    #seleciona o valor maximo da serie, para ajustar a curva normal\n",
+                "    #isso porque a normal é criada com valores entre 0 e 1\n",
+                "    #multiplicando ela por max_hist, fazemos ela se adequar a altura do histograma\n",
+                "    \n",
+                "    if (normal_curve_overlay == True):\n",
+                "        \n",
+                "        #construir a normal ajustada/esperada\n",
+                "        #vamos criar pontos ao redor da media mu - 4sigma ate mu + 4sigma, \n",
+                "        #de modo a garantir a quase totalidade da curva normal. \n",
+                "        #O incremento será de 0.10 sigma a cada iteracao\n",
+                "        x_inf = mu -(4)*sigma\n",
+                "        x_sup = mu + 4*sigma\n",
+                "        x_inc = (0.10)*sigma\n",
+                "        \n",
+                "        x_normal_adj = []\n",
+                "        y_normal_adj = []\n",
+                "        \n",
+                "        x_adj = x_inf\n",
+                "        y_adj = ((1 / (np.sqrt(2 * np.pi) * sigma)) *np.exp(-0.5 * (1 / sigma * (x_adj - mu))**2))\n",
+                "        x_normal_adj.append(x_adj)\n",
+                "        y_normal_adj.append(y_adj)\n",
+                "        \n",
+                "        while(x_adj < x_sup): \n",
+                "            \n",
+                "            x_adj = x_adj + x_inc\n",
+                "            y_adj = ((1 / (np.sqrt(2 * np.pi) * sigma)) *np.exp(-0.5 * (1 / sigma * (x_adj - mu))**2))\n",
+                "            x_normal_adj.append(x_adj)\n",
+                "            y_normal_adj.append(y_adj)\n",
+                "        \n",
+                "        #vamos ajustar a altura da curva ao histograma. Para isso, precisamos\n",
+                "        #calcular quantas vezes o ponto mais alto do histograma é maior que o ponto\n",
+                "        #mais alto da normal (chamaremos essa relação de fator). A seguir,\n",
+                "        #multiplicamos cada elemento da normal por este mesmo fator\n",
+                "        max_normal = max(y_normal_adj) \n",
+                "        #maximo da normal ajustada, numero entre 0 e 1\n",
+                "        \n",
+                "        fator = (max_hist)/(max_normal)\n",
+                "        size_normal = len(y_normal_adj) #quantidade de dados criados\n",
+                "        \n",
+                "        i = 0\n",
+                "        while (i < size_normal):\n",
+                "            y_normal_adj[i] = (y_normal_adj[i])*(fator)\n",
+                "            i = i + 1\n",
+                "    \n",
+                "    #Fazer o grafico\n",
+                "    fig, ax = plt.subplots()\n",
+                "    \n",
+                "    ax.bar(xhist, yhist, width = largura_da_barra, label=xlabel, color='blue')\n",
+                "    #ajuste manualmente a largura, width, para deixar as barras mais ou menos proximas\n",
+                "    \n",
+                "    if (normal_curve_overlay == True):\n",
+                "    \n",
+                "        #adicionar a normal\n",
+                "        ax.plot(x_normal_adj, y_normal_adj, color = 'black', label = 'Adjusted/expected\\n normal curve')\n",
+                "    \n",
+                "    ax.set_xlabel(eixo_x)\n",
+                "    ax.set_ylabel(eixo_y)\n",
+                "    ax.set_title(main_label)\n",
+                "    ax.set_xticks(xhist)\n",
+                "    \n",
+                "    ax.legend()\n",
+                "    ax.grid(True) #mude para False, caso não deseje ver as linhas de grade\n",
+                "    \n",
+                "    fig.tight_layout()\n",
+                "    plt.show()\n",
+                "\n",
+                "    return estatisticas_gerais, tab_frequencias"
+            ],
+            "metadata": {
+                "tags": [
+                    "CELL_7"
+                ],
+                "azdata_cell_guid": "710a63f4-3a6b-4d27-b4a2-d2fcb1c8fada"
+            },
+            "outputs": [],
+            "execution_count": 7
+        },
+        {
+            "cell_type": "markdown",
+            "source": [
+                "# CÉLULA 8: Função para construção do histograma e da tabela de frequência dos dados\n",
+                "\n",
+                "### ATENÇÃO: NÃO EXECUTE ESTA CÉLULA - Ela contém apenas texto explicativo    \n",
+                "    \n",
+                "INSTRUÇÕES:\n",
+                "\n",
+                "1) Esta função retorna 2 dataframes:\n",
+                "    \n",
+                "    1) dataframe estatisticas_gerais, um resumo das estatísticas gerais dos dados: total de dados avaliados; média; desvio-padrão; valor mais elevado; valor mais baixo; e bin size, a largura da barra do histograma.\n",
+                "    \n",
+                "    2) dataframe tab_frequencias, que mostra a tabela de frequencias usada na construção do histograma\n",
+                "\n",
+                "2) Os parâmetros x e y da função devem ser apenas listas, não dataframe(s)\n",
+                "\n",
+                "3) Esta função retorna 2 dataframes. Deste modo, você precisa chamar 2 daframes, não apenas um.\n",
+                "\n",
+                "Exemplo: caso deseje salvar o dataframe estatisticas_gerais em df1,  e o dataframe tab_frequencias em df2, e os dados estão na variável y:\n",
+                "    \n",
+                "       df1, df2 = histogram(y, largura_da_barra = 10, normal_curve_overlay = True, legenda_dos_dados = None, titulo_y = None, titulo_histograma = None)\n",
+                "    \n",
+                "Note que o primeiro será sempre estatisticas_gerais, e o segundo será tab_frequencias\n",
+                "\n",
+                "Você pode dar outros nomes para os dataframes chamados:\n",
+                "   \n",
+                "       estatisticas_gerais, tab_frequencias = histogram(y, largura_da_barra = 10, normal_curve_overlay = True, legenda_dos_dados = None, titulo_y = None, titulo_histograma = None)\n",
+                "\n",
+                "4) Caso QUEIRA mostrar a curva normal ajustada, mantenha:\n",
+                "    \n",
+                "        normal_curve_overlay = True\n",
+                "\n",
+                "CASO NAO QUEIRA MOSTRAR A NORMAL:\n",
+                "    \n",
+                "        normal_curve_overlay = False\n",
+                "\n",
+                "5) Altere o valor de largura_da_barra até conseguir ver o histograma de forma clara\n",
+                "    \n",
+                "6) Os demais parâmetros são textos (strings). Declare-os entre aspas ou mantenha o valor None\n",
+                "    \n",
+                "##### NOTA: ESTE ALGORITMO PODE FALHAR CASO TODOS OS DADOS SEJAM MUITO PRÓXIMOS. \n",
+                "\n",
+                "Isso porque a largura ncells teria de ser tão larga que uma única barra englobaria todos os dados. Além disso, principalmente quando se usa a transformação Box-Cox, a diferença entre os dados transformados pode ser baixa demais para que a memória \n",
+                "disponível no sistema identifique eles como números efetivamente diferentes (no arredondamento, eles passam a ser considerados iguais, fazendo com que o loop de comparação que verifica se um dado está numa barra ou na seguinte não possa ser finalizado. Isto gera MemoryError).\n",
+                "\n",
+                "CASO QUEIRA, mesmo assim, CONSTRUIR O HISTOGRAMA, apague as linhas de cálculo do bin size (de binsize = rangehist/ncells até binsize = int(binsize)) e substitua por um valor desejado de binsize. Por exemplo, substitua as linhas por:\n",
+                "    \n",
+                "    binsize = 10\n",
+                "\n",
+                "Assim, você definirá manualmente o tamanho da barra, podendo \"esticá-la\" para englobar todos os dados."
+            ],
+            "metadata": {
+                "tags": [
+                    "CELL_8"
+                ],
+                "azdata_cell_guid": "612bf930-0a47-4c24-9cbb-a8bc798c22d2"
+            }
+        },
+        {
+            "cell_type": "code",
+            "source": [
+                "## CÉLULA 9: CONSTRUÇÃO DO HISTOGRAMA PARA SEUS DADOS\n",
+                "\n",
+                "#DEFINA A VARIAVEL y para a qual será construído o histograma. \n",
+                "#Basta substituir o valor entre aspas pelo nome da coluna onde está Y:\n",
+                "\n",
+                "y_train = df_train['runtime']\n",
+                "y_test = df_test['runtime']\n",
+                "\n",
+                "#NOTA: o valor y necessariamente deve ser uma série.\n",
+                "\n",
+                "estatisticas_gerais_train, tab_frequencias_train = histogram(y = y_train, largura_da_barra = 50, normal_curve_overlay = True, legenda_dos_dados = None, titulo_y = None, titulo_histograma = None)\n",
+                "\n",
+                "# Altere manualmente o valor numérico da largura_da_barra do histograma até alcançar um espaçamento mínimo entre barras\n",
+                "#consecutivas. O valor da largura da barra depende de cada conjunto particular de dados utilizado.\n",
+                "\n",
+                "\"\"\"\n",
+                "Substitua os demais campos None de acordo com as instruções dadas na CÉLULA 8.\n",
+                "- Os títulos e legendas devem ser fornecidos como um texto entre aspas.\n",
+                "- Modifique normal_curve_overlay = True para normal_curve_overlay = False caso não deseje ver a normal sobreposta.\n",
+                "\n",
+                "\"\"\"\n",
+                "\n",
+                "estatisticas_gerais_train\n",
+                "tab_frequencias_train\n",
+                "\n",
+                "\"\"\"VOCÊ DESEJA EXPORTAR OS DADOS?\n",
+                "Caso deseje exportar os dados, copie as seguintes linhas para o espaço não-vermelho após as aspas. Substitua o endereço pela\n",
+                "pasta onde você deseja salvar seu arquivo. Substitua estatisticas e tabela_freq pelos nomes que deseja para seus arquivos. \n",
+                "Mantenha a extensão csv. Você pode também optar por exportar apenas uma das tabelas (neste caso, copie apenas a desejada).\n",
+                "\n",
+                "estatisticas_gerais.to_csv(r\"D:\\Drive\\FM2S\\EAD\\Green Belt em Python\\Machine Learning - módulo 3 - ANN classification\\ANN.Class - 1 - user satisfaction\\estatisticas.csv\", index = False)\n",
+                "\n",
+                "tab_frequencias.to_csv(r\"D:\\Drive\\FM2S\\EAD\\Green Belt em Python\\Machine Learning - módulo 3 - ANN classification\\ANN.Class - 1 - user satisfaction\\tabela_freq.csv\", index = False)\n",
+                "\n",
+                "\"\"\""
+            ],
+            "metadata": {
+                "tags": [
+                    "CELL_9"
+                ],
+                "azdata_cell_guid": "66cc8551-80ac-46c2-ae53-b4eb68e247bb"
+            },
+            "outputs": [
+                {
+                    "data": {
+                        "text/plain": "<Figure size 432x288 with 1 Axes>",
+                        "image/png": "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\n"
+                    },
+                    "metadata": {
+                        "needs_background": "light"
+                    },
+                    "output_type": "display_data"
+                },
+                {
+                    "data": {
+                        "text/plain": "'VOCÊ DESEJA EXPORTAR OS DADOS?\\nCaso deseje exportar os dados, copie as seguintes linhas para o espaço não-vermelho após as aspas. Substitua o endereço pela\\npasta onde você deseja salvar seu arquivo. Substitua estatisticas e tabela_freq pelos nomes que deseja para seus arquivos. \\nMantenha a extensão csv. Você pode também optar por exportar apenas uma das tabelas (neste caso, copie apenas a desejada).\\n\\nestatisticas_gerais.to_csv(r\"D:\\\\Drive\\\\FM2S\\\\EAD\\\\Green Belt em Python\\\\Machine Learning - módulo 3 - ANN classification\\\\ANN.Class - 1 - user satisfaction\\\\estatisticas.csv\", index = False)\\n\\ntab_frequencias.to_csv(r\"D:\\\\Drive\\\\FM2S\\\\EAD\\\\Green Belt em Python\\\\Machine Learning - módulo 3 - ANN classification\\\\ANN.Class - 1 - user satisfaction\\tabela_freq.csv\", index = False)\\n\\n'"
+                    },
+                    "metadata": {},
+                    "execution_count": 9,
+                    "output_type": "execute_result"
+                }
+            ],
+            "execution_count": 9
+        },
+        {
+            "cell_type": "code",
+            "source": [
+                "estatisticas_gerais_train"
+            ],
+            "metadata": {
+                "azdata_cell_guid": "5582d1db-4811-4874-915d-c0f11212682e"
+            },
+            "outputs": [
+                {
+                    "data": {
+                        "text/plain": "                    Estatísticas gerais dos dados  Valor calculado\n0                        Total de dados avaliados       100.000000\n1                                      Média (mu)       206.310000\n2                           Desvio-padrão (sigma)        46.342749\n3                              Valor mais elevado       362.000000\n4                                Valor mais baixo       128.000000\n5  Range dos dados\\n(valor máximo - valor mínimo)       234.000000\n6      Bin size\\n(largura da barra do histograma)        23.000000\n7  Quantidade de linhas\\nna tabela de frequências        11.000000",
+                        "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Estatísticas gerais dos dados</th>\n      <th>Valor calculado</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>Total de dados avaliados</td>\n      <td>100.000000</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>Média (mu)</td>\n      <td>206.310000</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>Desvio-padrão (sigma)</td>\n      <td>46.342749</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>Valor mais elevado</td>\n      <td>362.000000</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>Valor mais baixo</td>\n      <td>128.000000</td>\n    </tr>\n    <tr>\n      <th>5</th>\n      <td>Range dos dados\\n(valor máximo - valor mínimo)</td>\n      <td>234.000000</td>\n    </tr>\n    <tr>\n      <th>6</th>\n      <td>Bin size\\n(largura da barra do histograma)</td>\n      <td>23.000000</td>\n    </tr>\n    <tr>\n      <th>7</th>\n      <td>Quantidade de linhas\\nna tabela de frequências</td>\n      <td>11.000000</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+                    },
+                    "metadata": {},
+                    "execution_count": 10,
+                    "output_type": "execute_result"
+                }
+            ],
+            "execution_count": 10
+        },
+        {
+            "cell_type": "code",
+            "source": [
+                "tab_frequencias_train"
+            ],
+            "metadata": {
+                "azdata_cell_guid": "87e76873-04d4-4d8e-9eff-8c522c7e09bb"
+            },
+            "outputs": [
+                {
+                    "data": {
+                        "text/plain": "   Intervalos considerados  X: Mean value of the interval  Counting/Frequency\n0          128.00 - 151.00                          139.5                   7\n1          151.00 - 174.00                          162.5                  18\n2          174.00 - 197.00                          185.5                  23\n3          197.00 - 220.00                          208.5                  25\n4          220.00 - 243.00                          231.5                  10\n5          243.00 - 266.00                          254.5                   4\n6          266.00 - 289.00                          277.5                   8\n7          289.00 - 312.00                          300.5                   1\n8          312.00 - 335.00                          323.5                   1\n9          335.00 - 358.00                          346.5                   2\n10         358.00 - 381.00                          369.5                   1",
+                        "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Intervalos considerados</th>\n      <th>X: Mean value of the interval</th>\n      <th>Counting/Frequency</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>128.00 - 151.00</td>\n      <td>139.5</td>\n      <td>7</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>151.00 - 174.00</td>\n      <td>162.5</td>\n      <td>18</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>174.00 - 197.00</td>\n      <td>185.5</td>\n      <td>23</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>197.00 - 220.00</td>\n      <td>208.5</td>\n      <td>25</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>220.00 - 243.00</td>\n      <td>231.5</td>\n      <td>10</td>\n    </tr>\n    <tr>\n      <th>5</th>\n      <td>243.00 - 266.00</td>\n      <td>254.5</td>\n      <td>4</td>\n    </tr>\n    <tr>\n      <th>6</th>\n      <td>266.00 - 289.00</td>\n      <td>277.5</td>\n      <td>8</td>\n    </tr>\n    <tr>\n      <th>7</th>\n      <td>289.00 - 312.00</td>\n      <td>300.5</td>\n      <td>1</td>\n    </tr>\n    <tr>\n      <th>8</th>\n      <td>312.00 - 335.00</td>\n      <td>323.5</td>\n      <td>1</td>\n    </tr>\n    <tr>\n      <th>9</th>\n      <td>335.00 - 358.00</td>\n      <td>346.5</td>\n      <td>2</td>\n    </tr>\n    <tr>\n      <th>10</th>\n      <td>358.00 - 381.00</td>\n      <td>369.5</td>\n      <td>1</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+                    },
+                    "metadata": {},
+                    "execution_count": 11,
+                    "output_type": "execute_result"
+                }
+            ],
+            "execution_count": 11
+        },
+        {
+            "cell_type": "markdown",
+            "source": [
+                "**<mark>Histograma dos dados de teste</mark>**"
+            ],
+            "metadata": {
+                "azdata_cell_guid": "115fcaf3-667d-4c57-a4c3-95edfa71b0c7"
+            },
+            "attachments": {}
+        },
+        {
+            "cell_type": "code",
+            "source": [
+                "estatisticas_gerais_test, tab_frequencias_test = histogram(y = y_test, largura_da_barra = 50, normal_curve_overlay = True, legenda_dos_dados = None, titulo_y = None, titulo_histograma = None)\r\n",
+                "\r\n",
+                "# Altere manualmente o valor numérico da largura_da_barra do histograma até alcançar um espaçamento mínimo entre barras\r\n",
+                "#consecutivas. O valor da largura da barra depende de cada conjunto particular de dados utilizado.\r\n",
+                "\r\n",
+                ""
+            ],
+            "metadata": {
+                "azdata_cell_guid": "1588b051-0ccd-496d-8f6a-8760526baf5a"
+            },
+            "outputs": [
+                {
+                    "data": {
+                        "text/plain": "<Figure size 432x288 with 1 Axes>",
+                        "image/png": "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wUj9q8UDrwI3465N/TNC+wmve+65J9VF/+PHjxMTE3NKZdavX58XXnjh1AILkF6midwguWdo4HWw3MjOoIyJgGeeeYbVq1fz2muvUbp06Qjv7UagDe5m3j8ivC9jco6dQRkTZr/88gvDhg2jR48eXHnllTmwRwHeAGKBe4CJObDPU5P2TCeaxi3KKa1bt+a5556jUaNGfocStewMypgwUlVuu+02ihYtGtbmpszVAgYDk4DPc3C/+VNSUpLfIQSVnHoor7AKypgwGjVqFLNnz+app56icuXKObz3h4ALgds5evRwZivneyVLlmTw4MHUq1ePpk2bsm3bNsBdv7n00kuJjY2lbdu2bN68GYD+/ftz22230aZNGx588EH69+/PgAEDaNq0Keeccw5z5szhxhtv5MILL6R///4p+xkwYACNGjWiTp06PP7445nGtXDhQpo1a0a9evVo0qQJBw4cOClDeKdOnVJy8JUsWZJ//etf1KtXjyeffDJVxol58+bRqVMnAGbMmEF8fDwNGzake/fuJCYmnuohjDiroIwJk507d/Kvf/2LZs2aceutt/oQQWHgLWATM2aM9GH/ucvBgwdp2rQpy5Yto1WrVrz99tsADBw4kOuvv57ly5fTt2/flDRI4IatnzlzJv/73/8Ad6/R/PnzGT58OJ07d+bee+9l1apVrFixIqUTyBNPPMGiRYtYvnw533zzTdAbgZP99ddf9OzZkxdffJFly5Yxc+ZMihUrlunruPjii1m2bBmDBg3ihx9+4ODBg4C7kbdXr17s3LmTYcOGMXPmTBYvXkyjRo1SXkM0swrKmDAZPHgw+/bt480336RAAb/+tVoAtzBv3mRgjU8x5A6FCxdOObuIi4tL6fk2f/58+vTpA0C/fv349ttvU7bp3r17qt6GV111FSJC3bp1qVSpEnXr1qVAgQLUqVMnpbxJkybRsGFDGjRowKpVq1Llwkvr559/pnLlyin57kqXLp1pD9CYmBi6desGuJRMl19+OZ988glJSUl8+eWXXH311SxYsIDVq1fTvHlz6tevz8iRI9m0aVPWDpgPrJOEMWGwfv16RowYwW233ZZqWAZ//JdChcZw9OhQYEKma+dXhQoVSrk3LSYmJqTrSiVKlEj1vEiRIgAUKFAg5XHy86SkJDZs2MBzzz3HwoULKVeuHP3798/WAJQZ5QIs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BAYAzwPx/Pzzz/6GlA9ZBZUPbd68mY4dO3LPPffQvn17li9fzmWXXeZ3WMZEmWLAa8BHwEYaNmzI66+/zvHjx/0NKx+xCiofOXLkCP/5z3+44IILmDNnDq+88grTpk2jYsWKfodmTBS7GlhOs2bNuP322xkwYADz58/3O6h8wSqofEBV+fjjj6lduzaPPfYYHTt2ZM2aNdxxxx3WpGdMSKowY8YMxo0bx549e2jWrBnXX389f/zxh9+B5WlWQeVhqsr06dNp2bIlXbp0oWjRosycOZPJkydTrVo1v8MzJlcREXr37s2oUaMYNGgQ48ePp2bNmtx///38/vvvfoeXJ1kFlQedOHGCKVOmEBcXx5VXXsnmzZt5+eWXWbZsGW3btvU7PGNytWLFivHkk0+yatUqunTpwvDhw6lRowYDBgxgw4YNp1R2dkb6zWgKHFU4HFNOswoqD9myZQtPPPEENWvWpHv37iQmJjJixAjWrVvHnXfeSaFCNkyGMeFSs2ZNxowZwy+//EL//v159913qVmzJldffTUff/wxx44d8zvEXM8qqFzuwIEDTJw4kSuuuIJq1arx6KOPUq1aNSZOnMiaNWu48cYbKVy4sN9hGpNnnXvuubz55pv8+uuv3H///fz444906dKFqlWr8sADD7BkyRJU1e8wcyWroHKhzZs38+qrr9KhQwcqVKhAr169WLVqFYMHD2b9+vXMmjWLHj16EBNjQwcYk1OqVKnCU089xW+//cYnn3xC8+bNeeGFF2jYsCFnn302d9xxB1988QVHj9oovqGy4TainKqydu1a5s2bx7fffsu8efNYv349ALVq1eKuu+7iqquuonnz5lYhGRMFChYsSKdOnejUqRM7duzgs88+Y9q0abz//vu89tprFC1alCZNmtCyZUtatmxJfHy83yFHLaugosiePXtYu3YtK1euZNmyZSxdupTly5ezd+9eACpUqECLFi24/fbb6dixI+eff76/ARtjMlSxYkX69+9P//79OXLkCLNmzWLmzJnMmzePp556iieeeAIRoUqVKjRt2hSo500XANWB/H3d2JcKSkQuB17EDV/5jqo+5UccOUVVOXjwIDt27GD79u1s3bqVLVu2sHXrVn777TfWr1/PunXr2L17d8o2xYsXJzY2lp49e9KwYUNatmzJBRdcYPctGZNLFS1alCuvvJIr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\n"
+                    },
+                    "metadata": {
+                        "needs_background": "light"
+                    },
+                    "output_type": "display_data"
+                }
+            ],
+            "execution_count": 13
+        },
+        {
+            "cell_type": "code",
+            "source": [
+                "estatisticas_gerais_test"
+            ],
+            "metadata": {
+                "azdata_cell_guid": "bedd4ae2-57ad-48c9-8db6-f59d20077be1"
+            },
+            "outputs": [
+                {
+                    "data": {
+                        "text/plain": "                    Estatísticas gerais dos dados  Valor calculado\n0                        Total de dados avaliados       100.000000\n1                                      Média (mu)       130.960000\n2                           Desvio-padrão (sigma)        53.593479\n3                              Valor mais elevado       303.000000\n4                                Valor mais baixo        31.000000\n5  Range dos dados\\n(valor máximo - valor mínimo)       272.000000\n6      Bin size\\n(largura da barra do histograma)        27.000000\n7  Quantidade de linhas\\nna tabela de frequências        11.000000",
+                        "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Estatísticas gerais dos dados</th>\n      <th>Valor calculado</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>Total de dados avaliados</td>\n      <td>100.000000</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>Média (mu)</td>\n      <td>130.960000</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>Desvio-padrão (sigma)</td>\n      <td>53.593479</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>Valor mais elevado</td>\n      <td>303.000000</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>Valor mais baixo</td>\n      <td>31.000000</td>\n    </tr>\n    <tr>\n      <th>5</th>\n      <td>Range dos dados\\n(valor máximo - valor mínimo)</td>\n      <td>272.000000</td>\n    </tr>\n    <tr>\n      <th>6</th>\n      <td>Bin size\\n(largura da barra do histograma)</td>\n      <td>27.000000</td>\n    </tr>\n    <tr>\n      <th>7</th>\n      <td>Quantidade de linhas\\nna tabela de frequências</td>\n      <td>11.000000</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+                    },
+                    "metadata": {},
+                    "execution_count": 14,
+                    "output_type": "execute_result"
+                }
+            ],
+            "execution_count": 14
+        },
+        {
+            "cell_type": "code",
+            "source": [
+                "tab_frequencias_test"
+            ],
+            "metadata": {
+                "azdata_cell_guid": "52b4623c-bacb-49a9-8861-cea1f1f91496"
+            },
+            "outputs": [
+                {
+                    "data": {
+                        "text/plain": "   Intervalos considerados  X: Mean value of the interval  Counting/Frequency\n0            31.00 - 58.00                           44.5                  12\n1            58.00 - 85.00                           71.5                  12\n2           85.00 - 112.00                           98.5                  11\n3          112.00 - 139.00                          125.5                  19\n4          139.00 - 166.00                          152.5                  23\n5          166.00 - 193.00                          179.5                  11\n6          193.00 - 220.00                          206.5                   8\n7          220.00 - 247.00                          233.5                   3\n8          247.00 - 274.00                          260.5                   0\n9          274.00 - 301.00                          287.5                   0\n10         301.00 - 328.00                          314.5                   1",
+                        "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Intervalos considerados</th>\n      <th>X: Mean value of the interval</th>\n      <th>Counting/Frequency</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>31.00 - 58.00</td>\n      <td>44.5</td>\n      <td>12</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>58.00 - 85.00</td>\n      <td>71.5</td>\n      <td>12</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>85.00 - 112.00</td>\n      <td>98.5</td>\n      <td>11</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>112.00 - 139.00</td>\n      <td>125.5</td>\n      <td>19</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>139.00 - 166.00</td>\n      <td>152.5</td>\n      <td>23</td>\n    </tr>\n    <tr>\n      <th>5</th>\n      <td>166.00 - 193.00</td>\n      <td>179.5</td>\n      <td>11</td>\n    </tr>\n    <tr>\n      <th>6</th>\n      <td>193.00 - 220.00</td>\n      <td>206.5</td>\n      <td>8</td>\n    </tr>\n    <tr>\n      <th>7</th>\n      <td>220.00 - 247.00</td>\n      <td>233.5</td>\n      <td>3</td>\n    </tr>\n    <tr>\n      <th>8</th>\n      <td>247.00 - 274.00</td>\n      <td>260.5</td>\n      <td>0</td>\n    </tr>\n    <tr>\n      <th>9</th>\n      <td>274.00 - 301.00</td>\n      <td>287.5</td>\n      <td>0</td>\n    </tr>\n    <tr>\n      <th>10</th>\n      <td>301.00 - 328.00</td>\n      <td>314.5</td>\n      <td>1</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+                    },
+                    "metadata": {},
+                    "execution_count": 15,
+                    "output_type": "execute_result"
+                }
+            ],
+            "execution_count": 15
+        },
+        {
+            "cell_type": "code",
+            "source": [
+                "## CÉLULA 10: Função de avaliação da normalidade dos dados(probabilidade de os dados serem representados por uma curva normal)\n",
+                "\n",
+                "#Execute esta CÉLULA para carregar a função\n",
+                "\n",
+                "def testes_normalidade(y, alpha = 0.10):\n",
+                "    import pandas as pd\n",
+                "    from statsmodels.stats import diagnostic\n",
+                "    \n",
+                "    lista1 = []\n",
+                "    #esta lista sera a primeira coluna, com as descrições das demais\n",
+                "    lista1.append(\"p-valor: probabilidade de os dados serem descritos pela normal\")\n",
+                "    lista1.append(\"Probabilidade de seguir a normal (%)\")\n",
+                "    lista1.append(\"alpha\")\n",
+                "    lista1.append(\"Critério: não segue a normal se p < alpha = %.3f\" %(alpha))\n",
+                "    #%.3f apresenta f com 3 casas decimais\n",
+                "    #%f se refere a uma variavel float\n",
+                "    #informa ao usuario o valor definido para a rejeição\n",
+                "    lista1.append(\"Dados são descritos ou não pela normal?\")\n",
+                "    #Note que o comando append adiciona os elementos em sequencia, linha a linha\n",
+                "    #nao se especifica indice, pois ja esta subentendido que esta na proxima\n",
+                "    #linha\n",
+                "    \n",
+                "    #Lilliefors’ test\n",
+                "    lilliefors_test = diagnostic.kstest_normal(y, dist='norm', pvalmethod='table')\n",
+                "    #Return: linha 1: ksstat: float\n",
+                "    #Kolmogorov-Smirnov test statistic with estimated mean and variance.\n",
+                "    #Linha 2: p-value:float\n",
+                "    #If the pvalue is lower than some threshold, e.g. 0.10, then we can reject the Null hypothesis that the sample comes from a normal distribution.\n",
+                "    \n",
+                "    #criar lista apenas com o p-valor\n",
+                "    p_lillie = []\n",
+                "    p_lillie.append(lilliefors_test[1]) #p-valor\n",
+                "    p_lillie.append(100*lilliefors_test[1]) #p em porcentagem\n",
+                "    p_lillie.append(alpha)\n",
+                "    \n",
+                "    if (lilliefors_test[1] < alpha):\n",
+                "        p_lillie.append(\"p = %.3f < %.3f\" %(lilliefors_test[1], alpha))\n",
+                "        p_lillie.append(\"Dados não são descritos pela normal\")\n",
+                "    else:\n",
+                "        p_lillie.append(\"p = %.3f >= %.3f\" %(lilliefors_test[1], alpha))\n",
+                "        p_lillie.append(\"Dados são descritos pela normal\")\n",
+                "        \n",
+                "    \n",
+                "    #Anderson-Darling\n",
+                "    ad_test = diagnostic.normal_ad(y, axis=0)\n",
+                "    #Return: Linha 1: ad2: float\n",
+                "    #Anderson Darling test statistic.\n",
+                "    #Linha 2: p-val: float\n",
+                "    #The p-value for hypothesis that the data comes from a normal distribution with unknown mean and variance.\n",
+                "    \n",
+                "    #criar lista apenas com o p-valor\n",
+                "    p_ad = []\n",
+                "    p_ad.append(ad_test[1]) #p-valor\n",
+                "    p_ad.append(100*ad_test[1]) #p em porcentagem\n",
+                "    p_ad.append(alpha)\n",
+                "    \n",
+                "    if (ad_test[1] < alpha):\n",
+                "        p_ad.append(\"p = %.3f < %.3f\" %(ad_test[1], alpha))\n",
+                "        p_ad.append(\"Dados não são descritos pela normal\")\n",
+                "    else:\n",
+                "        p_ad.append(\"p = %.3f >= %.3f\" %(ad_test[1], alpha))\n",
+                "        p_ad.append(\"Dados são descritos pela normal\")\n",
+                "    \n",
+                "    #NOTA: o comando %f apresenta a variavel float com todas as casas\n",
+                "    #decimais possiveis. Se desejamos um numero certo de casas decimais\n",
+                "    #acrescentamos esse numero a frente. Exemplos: %.1f: 1 casa decimal\n",
+                "    # %.2f: 2 casas; %.3f: 3 casas decimais, %.4f: 4 casas\n",
+                "    \n",
+                "    d = {'Parâmetros e Interpretações': lista1, 'Teste de Lilliefors': p_lillie, 'Teste de Anderson-Darling': p_ad}\n",
+                "    \n",
+                "    #dicionario dos valores obtidos\n",
+                "    df = pd.DataFrame(data = d)\n",
+                "    #dataframe de saída\n",
+                "    \n",
+                "    return df"
+            ],
+            "metadata": {
+                "tags": [
+                    "CELL_10"
+                ],
+                "azdata_cell_guid": "17a7e788-2246-4c85-88b8-6eba3f490d8e"
+            },
+            "outputs": [],
+            "execution_count": 12
+        },
+        {
+            "cell_type": "markdown",
+            "source": [
+                "# CÉLULA 11: Função para avaliar normalidade dos dados\n",
+                "\n",
+                "### ATENÇÃO: NÃO EXECUTE ESTA CÉLULA - Ela contém apenas texto explicativo\n",
+                "\n",
+                "Avaliação se os dados seguem a distribuição normal, de acordo com os testes de Lilliefors e Anderson-Darling\n",
+                "\n",
+                "INSTRUÇÕES:\n",
+                "\n",
+                "1) Esta função retorna 1 dataframe:\n",
+                "    dataframe df1 contendo os p-valores dos testes de normalidade dos dados.\n",
+                "\n",
+                "2) O parâmetro y da função deve ser apenas uma lista, não um dataframe.\n",
+                "\n",
+                "3) p-valor: probabilidade da hipótese-nula do teste de hipótese ser verdadeira\n",
+                "\n",
+                "Hipótese-nula H0: os dados seguem uma distribuição normal\n",
+                "Hipótese alternativa H1: os dados não seguem a normal\n",
+                "\n",
+                "4) o p-valor é uma probabilidade, i.e., um valor entre 0 e 1\n",
+                "\n",
+                "5) 100 vezes o p-valor é a probabilidade em porcentagem\n",
+                "        \n",
+                "        Exemplo: se p = 0.20, a probabilidade é 0.20 ou 20% de os dados serem descritos pela normal\n",
+                "\n",
+                "6) Critério de rejeição: define-se um valor alpha tal que, se p < alpha, rejeitamos a hipótese-nula, ou seja, consideramos que os dados não seguem a normal\n",
+                "\n",
+                "###### 7) em geral, tomamos alpha = 0.10 - ou seja, se p < 0,10 (se há menos de 10% de probabilidade de seguirem a normal), consideramos que os dados não seguem a distribuição\n",
+                "\n",
+                "##### 8) Alguns autores são mais rigorosos, considerando alpha = 0.05 - ou seja, só rejeitam a normal se existe menos de 5% de probabilidade de os dados serem descritos por uma normal.\n",
+                "\n",
+                "### PORTANTO: MANTENHA alpha = 0.10 \n",
+                "                \n",
+                "                OU \n",
+                "\n",
+                "### ALTERE para alpha = 0.05"
+            ],
+            "metadata": {
+                "tags": [
+                    "CELL_11"
+                ],
+                "azdata_cell_guid": "d32893fc-03b2-4bbd-8b23-698028fc8aa1"
+            }
+        },
+        {
+            "cell_type": "markdown",
+            "source": [
+                "Normalidade dos dados de treino"
+            ],
+            "metadata": {
+                "azdata_cell_guid": "c9ddb048-c024-4325-9016-d97f226cef24"
+            },
+            "attachments": {}
+        },
+        {
+            "cell_type": "code",
+            "source": [
+                "## CÉLULA 12: AVALIAÇÃO DE NORMALIDADE DOS SEUS DADOS\n",
+                "\n",
+                "#DEFINA A VARIAVEL y para a qual será construído o histograma. \n",
+                "#Basta substituir o valor entre aspas pelo nome da coluna onde está Y:\n",
+                "\n",
+                "y_train = df_train['runtime']\n",
+                "y_test = df_test['runtime']\n",
+                "\n",
+                "#NOTA: o valor y necessariamente deve ser uma série.\n",
+                "\n",
+                "normality_train = testes_normalidade(y = y_train, alpha = 0.10)\n",
+                "normality_test = testes_normalidade(y = y_test, alpha = 0.10)\n",
+                "\n",
+                "\"\"\"\n",
+                "Substitua o valor alpha de acordo com as instruções dadas na CÉLULA 11. \n",
+                "\n",
+                "\"\"\"\n",
+                "\n",
+                "\n",
+                "\"\"\"VOCÊ DESEJA EXPORTAR OS DADOS?\n",
+                "Caso deseje exportar os dados, copie a seguinte linha para o espaço não-vermelho após as aspas. Substitua o endereço pela\n",
+                "pasta onde você deseja salvar seu arquivo. Substitua dataframe pelo nome que deseja para seu arquivo. Mantenha\n",
+                "a extensão csv\n",
+                "\n",
+                "df.to_csv(r\"D:\\Drive\\FM2S\\EAD\\Green Belt em Python\\Machine Learning - módulo 3 - ANN classification\\ANN.Class - 1 - user satisfaction\\dataframe.csv\", index = False)\n",
+                "\n",
+                "\"\"\""
+            ],
+            "metadata": {
+                "tags": [
+                    "CELL_12"
+                ],
+                "azdata_cell_guid": "d56cf297-01ea-49ab-9f80-eaa56592cc83"
+            },
+            "outputs": [
+                {
+                    "data": {
+                        "text/plain": "'VOCÊ DESEJA EXPORTAR OS DADOS?\\nCaso deseje exportar os dados, copie a seguinte linha para o espaço não-vermelho após as aspas. Substitua o endereço pela\\npasta onde você deseja salvar seu arquivo. Substitua dataframe pelo nome que deseja para seu arquivo. Mantenha\\na extensão csv\\n\\ndf.to_csv(r\"D:\\\\Drive\\\\FM2S\\\\EAD\\\\Green Belt em Python\\\\Machine Learning - módulo 3 - ANN classification\\\\ANN.Class - 1 - user satisfaction\\\\dataframe.csv\", index = False)\\n\\n'"
+                    },
+                    "metadata": {},
+                    "execution_count": 17,
+                    "output_type": "execute_result"
+                }
+            ],
+            "execution_count": 17
+        },
+        {
+            "cell_type": "code",
+            "source": [
+                "normality_train"
+            ],
+            "metadata": {
+                "azdata_cell_guid": "5ef613a1-adaf-4a41-9041-20612e698144"
+            },
+            "outputs": [
+                {
+                    "data": {
+                        "text/plain": "                         Parâmetros e Interpretações  \\\n0  p-valor: probabilidade de os dados serem descr...   \n1               Probabilidade de seguir a normal (%)   \n2                                              alpha   \n3  Critério: não segue a normal se p < alpha = 0.100   \n4            Dados são descritos ou não pela normal?   \n\n                   Teste de Lilliefors            Teste de Anderson-Darling  \n0                                0.001                             0.000059  \n1                                  0.1                             0.005933  \n2                                  0.1                                  0.1  \n3                    p = 0.001 < 0.100                    p = 0.000 < 0.100  \n4  Dados não são descritos pela normal  Dados não são descritos pela normal  ",
+                        "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Parâmetros e Interpretações</th>\n      <th>Teste de Lilliefors</th>\n      <th>Teste de Anderson-Darling</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>p-valor: probabilidade de os dados serem descr...</td>\n      <td>0.001</td>\n      <td>0.000059</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>Probabilidade de seguir a normal (%)</td>\n      <td>0.1</td>\n      <td>0.005933</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>alpha</td>\n      <td>0.1</td>\n      <td>0.1</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>Critério: não segue a normal se p &lt; alpha = 0.100</td>\n      <td>p = 0.001 &lt; 0.100</td>\n      <td>p = 0.000 &lt; 0.100</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>Dados são descritos ou não pela normal?</td>\n      <td>Dados não são descritos pela normal</td>\n      <td>Dados não são descritos pela normal</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+                    },
+                    "metadata": {},
+                    "execution_count": 18,
+                    "output_type": "execute_result"
+                }
+            ],
+            "execution_count": 18
+        },
+        {
+            "cell_type": "markdown",
+            "source": [
+                "Normalidade dos dados de teste"
+            ],
+            "metadata": {
+                "azdata_cell_guid": "c8936c70-7ea1-4976-874f-e6f6b998f3a1"
+            },
+            "attachments": {}
+        },
+        {
+            "cell_type": "code",
+            "source": [
+                "normality_test"
+            ],
+            "metadata": {
+                "azdata_cell_guid": "186d91a6-7ce8-4721-8e04-a56427f15f4b"
+            },
+            "outputs": [
+                {
+                    "data": {
+                        "text/plain": "                         Parâmetros e Interpretações  \\\n0  p-valor: probabilidade de os dados serem descr...   \n1               Probabilidade de seguir a normal (%)   \n2                                              alpha   \n3  Critério: não segue a normal se p < alpha = 0.100   \n4            Dados são descritos ou não pela normal?   \n\n               Teste de Lilliefors        Teste de Anderson-Darling  \n0                         0.302421                         0.292176  \n1                        30.242091                        29.217637  \n2                              0.1                              0.1  \n3               p = 0.302 >= 0.100               p = 0.292 >= 0.100  \n4  Dados são descritos pela normal  Dados são descritos pela normal  ",
+                        "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Parâmetros e Interpretações</th>\n      <th>Teste de Lilliefors</th>\n      <th>Teste de Anderson-Darling</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>p-valor: probabilidade de os dados serem descr...</td>\n      <td>0.302421</td>\n      <td>0.292176</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>Probabilidade de seguir a normal (%)</td>\n      <td>30.242091</td>\n      <td>29.217637</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>alpha</td>\n      <td>0.1</td>\n      <td>0.1</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>Critério: não segue a normal se p &lt; alpha = 0.100</td>\n      <td>p = 0.302 &gt;= 0.100</td>\n      <td>p = 0.292 &gt;= 0.100</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>Dados são descritos ou não pela normal?</td>\n      <td>Dados são descritos pela normal</td>\n      <td>Dados são descritos pela normal</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+                    },
+                    "metadata": {},
+                    "execution_count": 19,
+                    "output_type": "execute_result"
+                }
+            ],
+            "execution_count": 19
+        },
+        {
+            "cell_type": "markdown",
+            "source": [
+                "Vemos que, embora os dados de treino não possam ser descritos, os dados de teste podem ser descritos pela normal. Os conjuntos de dados parecem uma normal distorcida, como a lognormal"
+            ],
+            "metadata": {
+                "azdata_cell_guid": "05addf94-3415-4711-9f4d-10baeb918e39"
+            },
+            "attachments": {}
+        }
+    ]
+}

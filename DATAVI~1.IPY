@@ -1,0 +1,419 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Instruções gerais\n",
+    "\n",
+    "Para executar uma CÉLULA, pressione o botão \"Run\" no topo, com a CÉLULA selecionada, ou pressione:\n",
+    "    \n",
+    "    Shift + Enter\n",
+    "\n",
+    "EXECUTE APENAS UMA CÉLULA POR VEZ\n",
+    "\n",
+    "-Caso deseje apagar a saída de uma célula carregada, mas não deseje carregar uma nova saída, vá à aba superior, escolha o ícone\n",
+    "do teclado (open the command palette/ jupyter-notebook command group) e selecione clear cell output.\n",
+    "\n",
+    "@author: Marco César Prado Soares, MSc.\n",
+    "Especialista Lean Six Sigma Master Black Belt, Eng. Químico, MSc. Eng. Mecatrônica (instrumentação) \n",
+    "Marco.Soares@br.ey.com; marcosoares.feq@gmail.com"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "3fcdfa7b-9b0f-4d21-88b2-a8b3d50cc40e"
+   },
+   "source": [
+    "# **Visualização de Dados**\n",
+    "\n",
+    "# **Criação e formatação de gráficos com Matplotlib**"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "682f9506-dc23-48a0-bddd-20e482ec6a81"
+   },
+   "source": [
+    "**<span style=\"font-size:12.0pt;line-height:115%;font-family:&quot;Times New Roman&quot;,serif;\n",
+    "mso-fareast-font-family:Calibri;mso-fareast-theme-font:minor-latin;color:black;\n",
+    "mso-themecolor:text1;mso-ansi-language:PT-BR;mso-fareast-language:EN-US;\n",
+    "mso-bidi-language:AR-SA\">1. Legenda contendo frações, equações ou caracteres especiais</span>**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "azdata_cell_guid": "8bc61033-0301-4dc1-907c-6cbe329adaab"
+   },
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "with open(\"Goals.txt\",\"r\") as f:\n",
+    "    HomeTeamGoals = [ int(x) for x in f.readline().strip(\"\\n\").strip(\" \").split(\" \")]\n",
+    "    AwayTeamGoals = [int(x) for x in f.readline().strip(\"\\n\").strip(\" \").split(\" \")]\n",
+    "\n",
+    "xVariable = []\n",
+    "ticks = [\"Game One\", \"Game Fifty\", \"Game 100\"]\n",
+    "for i in range(len(HomeTeamGoals)):\n",
+    "    xVariable.append(i)\n",
+    "plt.plot(xVariable, AwayTeamGoals, c = \"green\", ls = \"--\")\n",
+    "plt.title(r\"Our first plot $\\frac{1}{2}$\")\n",
+    "#plt.show()\n",
+    "#plt.title(\"Our second plot\")\n",
+    "plt.plot(xVariable, HomeTeamGoals, c = \"red\", ls = \":\")\n",
+    "plt.xlim(0,145)\n",
+    "plt.ylim(-0.5,6)\n",
+    "plt.xlabel(r\"Game Number$_5$\")\n",
+    "plt.ylabel(r\"Goals Scored\")\n",
+    "plt.xticks([49],[\"Fourty Nine\"])\n",
+    "plt.yticks([3],[\"Three Goals\"])\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "efd03880-3d9f-495c-8069-7c9cf5c8562e"
+   },
+   "source": [
+    "**<span style=\"font-size:12.0pt;line-height:115%;font-family:&quot;Times New Roman&quot;,serif;\n",
+    "mso-fareast-font-family:Calibri;mso-fareast-theme-font:minor-latin;color:black;\n",
+    "mso-themecolor:text1;mso-ansi-language:PT-BR;mso-fareast-language:EN-US;\n",
+    "mso-bidi-language:AR-SA\">2. Gráfico contendo </span> <span style=\"font-size:12.0pt;\n",
+    "line-height:115%;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:\n",
+    "Calibri;mso-fareast-theme-font:minor-latin;color:red;background:yellow;\n",
+    "mso-highlight:yellow;mso-ansi-language:PT-BR;mso-fareast-language:EN-US;\n",
+    "mso-bidi-language:AR-SA\">legendas rotacionadas,</span> <span style=\"font-size:\n",
+    "12.0pt;line-height:115%;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:\n",
+    "Calibri;mso-fareast-theme-font:minor-latin;color:black;mso-themecolor:text1;\n",
+    "mso-ansi-language:PT-BR;mso-fareast-language:EN-US;mso-bidi-language:AR-SA\">textos, anotações e setas explicativas, rotacionadas ou não, encolhidas ou não</span>**\n",
+    "\n",
+    "<span style=\"text-align: justify; font-size: 12pt; font-family: &quot;Times New Roman&quot;, serif; color: black;\">-&nbsp; Note que o comando </span> **<span style=\"font-size:12.0pt;font-family:\n",
+    "&quot;Times New Roman&quot;,serif;color:red;background:yellow;mso-highlight:yellow\">rotation</span>** <span style=\"text-align: justify; font-size: 12pt; font-family: &quot;Times New Roman&quot;, serif; color: black;\">é responsável pela rotação/inclinação. Shrink encolhe a forma, e arrowprops gera setas nas coordenadas indicadas.</span>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "azdata_cell_guid": "50f4d801-bf11-4891-a7da-499723ff5c92"
+   },
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "with open(\"Goals.txt\",\"r\") as f:\n",
+    "    HomeTeamGoals = [ int(x) for x in f.readline().strip(\"\\n\").strip(\" \").split(\" \")]\n",
+    "    AwayTeamGoals = [int(x) for x in f.readline().strip(\"\\n\").strip(\" \").split(\" \")]\n",
+    "\n",
+    "xVariable = []\n",
+    "ticks = [\"Game One\", \"Game Fifty\", \"Game 100\"]\n",
+    "for i in range(len(HomeTeamGoals)):\n",
+    "    xVariable.append(i)\n",
+    "plt.plot(xVariable, AwayTeamGoals, c = \"green\", ls = \"--\")\n",
+    "plt.title(r\"Our first plot $\\frac{1}{2}$\")\n",
+    "#plt.show()\n",
+    "#plt.title(\"Our second plot\")\n",
+    "plt.plot(xVariable, HomeTeamGoals, c = \"red\", ls = \":\")\n",
+    "plt.xlim(0,145)\n",
+    "plt.ylim(-0.5,6)\n",
+    "plt.xlabel(r\"Game Number$_5$\")\n",
+    "plt.ylabel(r\"Goals Scored\")\n",
+    "plt.xticks([49],[\"12/12/12\"],rotation = 45)\n",
+    "plt.yticks([3],[\"Three Goals\"],rotation = 90)\n",
+    "plt.text(50,4,r\"Our$^3$ Custom Text\",fontsize = 8,color = \"blue\",rotation = 45)\n",
+    "plt.annotate(\"Text 2\", xy = (30,5), xytext = (65,5),\n",
+    "             arrowprops = dict(facecolor = \"red\",shrink = 25))\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "ec69bffd-0986-45f4-8ac7-bdb4c2018108"
+   },
+   "source": [
+    "**<span style=\"font-size:12.0pt;line-height:115%;font-family:&quot;Times New Roman&quot;,serif;\n",
+    "mso-fareast-font-family:Calibri;mso-fareast-theme-font:minor-latin;color:red;\n",
+    "background:yellow;mso-highlight:yellow;mso-ansi-language:PT-BR;mso-fareast-language:\n",
+    "EN-US;mso-bidi-language:AR-SA\">3. Ajuste de tamanho e posicionamento de legendas e elementos gráficos</span>**\n",
+    "\n",
+    "<span style=\"font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;\n",
+    "color:black;mso-themecolor:text1\">- Note que o comando </span> <span style=\"font-size:9.0pt;font-family:Consolas;mso-fareast-font-family:&quot;Times New Roman&quot;;\n",
+    "mso-bidi-font-family:&quot;Times New Roman&quot;;color:#212121;background:yellow;\n",
+    "mso-highlight:yellow;mso-fareast-language:PT-BR\">plt.legend(loc&nbsp;</span> <span style=\"font-size:9.0pt;font-family:Consolas;mso-fareast-font-family:&quot;Times New Roman&quot;;\n",
+    "mso-bidi-font-family:&quot;Times New Roman&quot;;color:black;background:yellow;\n",
+    "mso-highlight:yellow;mso-fareast-language:PT-BR\">=</span> <span style=\"font-size:9.0pt;font-family:Consolas;mso-fareast-font-family:&quot;Times New Roman&quot;;\n",
+    "mso-bidi-font-family:&quot;Times New Roman&quot;;color:#A31515;background:yellow;\n",
+    "mso-highlight:yellow;mso-fareast-language:PT-BR\">\"upper&nbsp;right\"</span><span style=\"font-size:9.0pt;font-family:Consolas;mso-fareast-font-family:&quot;Times New Roman&quot;;\n",
+    "mso-bidi-font-family:&quot;Times New Roman&quot;;color:#212121;background:yellow;\n",
+    "mso-highlight:yellow;mso-fareast-language:PT-BR\">)</span> <span style=\"font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;\n",
+    "color:black;mso-themecolor:text1\">especifica a posição superior direita para a legenda. Esta é também a posição-padrão.</span>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "azdata_cell_guid": "a67878a1-1cc7-430e-903f-4f8e2690cc09",
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "with open(\"Goals.txt\",\"r\") as f:\n",
+    "    HomeTeamGoals = [ int(x) for x in f.readline().strip(\"\\n\").strip(\" \").split(\" \")]\n",
+    "    AwayTeamGoals = [int(x) for x in f.readline().strip(\"\\n\").strip(\" \").split(\" \")]\n",
+    "\n",
+    "xVariable = []\n",
+    "ticks = [\"Game One\", \"Game Fifty\", \"Game 100\"]\n",
+    "for i in range(len(HomeTeamGoals)):\n",
+    "    xVariable.append(i)\n",
+    "    \n",
+    "plt.figure(figsize = (10,10))\n",
+    "plt.plot(xVariable, AwayTeamGoals, c = \"green\", ls = \"--\",\n",
+    "         label = \"Away Team Goals\")\n",
+    "plt.title(r\"Our first plot $\\frac{1}{2}$\")\n",
+    "#plt.show()\n",
+    "#plt.title(\"Our second plot\")\n",
+    "plt.plot(xVariable, HomeTeamGoals, c = \"red\", ls = \":\",\n",
+    "         label = \"Home Team Goals\")\n",
+    "plt.legend(loc = \"upper right\")\n",
+    "plt.xlim(0,145)\n",
+    "plt.ylim(-0.5,6)\n",
+    "plt.xlabel(r\"Game Number$_5$\")\n",
+    "plt.ylabel(r\"Goals Scored\")\n",
+    "plt.xticks([49],[\"12/12/12\"],rotation = 45)\n",
+    "plt.yticks([3],[\"Three Goals\"],rotation = 90)\n",
+    "plt.text(50,4,r\"Our$^3$ Custom Text\",fontsize = 8,color = \"blue\",rotation = 45)\n",
+    "plt.annotate(\"Text 2\", xy = (30,5), xytext = (65,5),\n",
+    "             arrowprops = dict(facecolor = \"red\",shrink = 25))\n",
+    "plt.savefig(\"MyFirstFigure.pdf\")\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "98273c84-ba22-4d27-9874-46ff4fb396ad"
+   },
+   "source": [
+    "<span style=\"font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;color:black;\"><b>4.&nbsp;Código para construção de histograma simples, otimizado para situações nas quais as diferenças entre os dados são muito pequenas, resultando em bin size tendendo a zero</b>.</span>\n",
+    "\n",
+    "<span style=\"font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;color:black;\">Note que existem 2 comandos, hist (histograma tradicional), e hist2d (histograma bidimensional). Neles, define-se o tamanho ou <span style=\"background:yellow;\">valor máximo dos bins, os labels</span> (rótulos/legendas) e o alinhamento em relação às margens (<span style=\"background:yellow;\">align</span>).</span>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "92587c8c-de6a-45eb-bc0c-90bede8aa949"
+   },
+   "source": [
+    "**4.1. Largura do bin (intervalo) fixa**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "azdata_cell_guid": "0d9983ba-511c-4a90-877f-b8ccee6f9f82"
+   },
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "import pandas as pd\n",
+    "\n",
+    "plt.figure(figsize = (10,6));\n",
+    "#tamanho da figura\n",
+    "\n",
+    "y = df['age']\n",
+    "#df é o dataframe analisado, no qual se encontra a coluna 'age'\n",
+    "#substitua df e 'age' pelo correto, de acordo com os dados analisados.\n",
+    "\n",
+    "plt.hist(y, bins = 20);\n",
+    "\n",
+    "#em bins = 20, define-se que o histograma apresentará um número fixo de 20 intervalos (bins).\n",
+    "#modifique manualmente este valor até obter a largura de intervalo (bin size) mais adequada\n",
+    "\n",
+    "plt.savefig(\"MyFirstFigure.pdf\")\n",
+    "#utilize este comando para salvar externamente a figura. Substitua o trecho entre aspas pelo endereço (path) da figura.\n",
+    "\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "27bcf4f0-8895-42bd-a915-59594a768874"
+   },
+   "source": [
+    "**4.2. Forma alternativa de construir o gráfico: fornecer lista com os valores de início e término dos bins**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "azdata_cell_guid": "3c4a806e-d88b-46f5-aac4-9154cd207509"
+   },
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "with open(\"Goals.txt\",\"r\") as f:\n",
+    "    HomeTeamGoals = [int(x) for x in f.readline().strip(\"\\n\").strip(\" \").split(\" \")]\n",
+    "    AwayTeamGoals = [int(x) for x in f.readline().strip(\"\\n\").strip(\" \").split(\" \")]\n",
+    "\n",
+    "TotalGoals = HomeTeamGoals + AwayTeamGoals\n",
+    "plt.figure(figsize = (8,5))\n",
+    "plt.hist(x = (HomeTeamGoals,AwayTeamGoals,TotalGoals),\n",
+    "         bins = range(8),\n",
+    "         label = [\"Home Team Goals\",\"Away Team Goals\", \n",
+    "         \"Total Goals Scored\"],\n",
+    "         align = \"left\")\n",
+    "plt.legend()\n",
+    "plt.xlabel(\"Goals Scored\")\n",
+    "plt.ylabel(\"Number of goals scored\")\n",
+    "plt.show()\n",
+    "\n",
+    "plt.figure(figsize = (8,5))\n",
+    "plt.hist2d(x = HomeTeamGoals,\n",
+    "           y = AwayTeamGoals,\n",
+    "           bins = (range(8),range(7)))\n",
+    "plt.xlabel(\"Home Team Goals\")\n",
+    "plt.ylabel(\"Away Team Goals\")\n",
+    "plt.colorbar()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "904b85d9-79d8-46b6-8fc7-1ce19815f8a3"
+   },
+   "source": [
+    "Neste exemplo, note que o método split foi usado para separar as entradas de texto. Além disso, foi utilizada a função **range** para gerar a lista dos bins. A lista poderia ser fornecida manualmente, e.g. lista\\_bins = \\[0, 2, 4, 6, 8, 10\\].\n",
+    "\n",
+    "\\- A função range possui a seguinte sintaxe:\n",
+    "\n",
+    "> **<mark>list = range(start, end, step)</mark>**\n",
+    "\n",
+    "> \\- list: lista que armazenará os valores gerados pela função range.\n",
+    "\n",
+    "> \\- start: argumento opcional, que informa o primeiro valor do intervalo (range) gerado. Se este valor não for declarado, start = 0;\n",
+    "\n",
+    "> \\- end: argumento obrigatório. Informa o valor inteiro seguinte ao valor final do intervalo gerado (ou seja, \\[valor final\\] + 1).\n",
+    "\n",
+    "> \\- step: argumento opcional, que informa o incremento entre cada valor gerado no range. Se este valor não for declarado, step = 1, ou seja, um elemento gerado será igual ao elemento anterior + 1.\n",
+    "\n",
+    "Note que se a função range for declarada com apenas um argumento, este valor será tomado como o argumento obrigatório (end + 1), e os outros dois serão tomados como o valor padrão. Assim, range (8), no gráfico acima, gera um intervalo começando em zero e indo até 7 (8 é o inteiro seguinte), com incrementos unitários: 0, 1, 2, 3, 4, 5, 6, 7.\n",
+    "\n",
+    "\\- Esta lista de valores é usada para delimitar os bins, ou seja, corresponde ao início e fim de cada bin.\n",
+    "\n",
+    "\\- Um outro exemplo de aplicação da função range é o seguinte, que imprime todos os valores de 0 a 5.\n",
+    "\n",
+    "> x = range(6)\n",
+    "> \n",
+    "> <span style=\"background-color: rgb(255, 255, 254);\">for n in x:</span>\n",
+    "\n",
+    "> >   print(n) \n",
+    "\n",
+    "\\- Caso a função range seja declarada com 2 argumentos, o primeiro valor será tomado como o início, e o segundo valor será tomado como <span style=\"background-color: rgba(127, 127, 127, 0.1);\">[valor final] + 1.</span>\n",
+    "\n",
+    "\\- O passo/incremento só pode ser declarado caso 3 valores sejam fornecidos à função range.  \n",
+    "\n",
+    "\\- Forneça apenas valores numéricos ou variáveis à função: lista= range(0, 10, 2) ou lista = range(inicio, fim, passo)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "a3b6cffb-6dda-4434-88eb-b44877db8a7d"
+   },
+   "source": [
+    "<span style=\"font-size:12.0pt;\n",
+    "font-family:&quot;Times New Roman&quot;,serif;color:black;mso-themecolor:text1\">Note ainda que existem 2 comandos no código: </span> **<span style=\"font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;\n",
+    "color:red;background:yellow;mso-highlight:yellow\">hist (histograma tradicional), e hist2d (histograma bidimensional).</span>** <span style=\"font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;color:black;\n",
+    "mso-themecolor:text1\">Neles, define-se o tamanho ou <span style=\"background:\n",
+    "yellow;mso-highlight:yellow\">valor máximo dos bins, os labels</span> (rótulos/legendas) e o alinhamento em relação às margens (<span style=\"background:yellow;mso-highlight:yellow\">align</span>).</span>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "azdata_cell_guid": "019a2181-07ff-4eb2-a060-021cd9dd1b1c"
+   },
+   "source": [
+    "**<span style=\"font-size:12.0pt;line-height:115%;font-family:&quot;Times New Roman&quot;,serif;\n",
+    "mso-fareast-font-family:Calibri;mso-fareast-theme-font:minor-latin;color:black;\n",
+    "mso-themecolor:text1;mso-ansi-language:PT-BR;mso-fareast-language:EN-US;\n",
+    "mso-bidi-language:AR-SA\">5. Construção de gráficos em escalas log e semi-log</span>**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "azdata_cell_guid": "dd88055e-d484-4344-bda0-ebc402edf622"
+   },
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "x = []\n",
+    "y = []\n",
+    "\n",
+    "for i in range(-10000,10000):\n",
+    "    x.append(i/100)\n",
+    "    y.append(i/100)\n",
+    "    \n",
+    "plt.plot(x,y)\n",
+    "plt.xscale(\"linear\")\n",
+    "plt.yscale(\"linear\")\n",
+    "plt.show()\n",
+    "\n",
+    "plt.plot(x,y)\n",
+    "plt.xscale(\"log\",basex = 10,subsx = [2,3,4,5,6])\n",
+    "#plt.yscale(\"log\",basey = 5,subsy)\n",
+    "plt.show()\n",
+    "\n",
+    "plt.plot(x,y)\n",
+    "plt.xscale(\"symlog\",basex = 5,subsx = [2,3],linthreshx = 1)\n",
+    "#(-10,10)\n",
+    "plt.show()\n",
+    "\n",
+    "plt.plot(x,y)\n",
+    "plt.xscale(\"logit\")\n",
+    "plt.show()"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.5"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
